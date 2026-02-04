@@ -71,29 +71,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic blog post pages
   let blogPosts: MetadataRoute.Sitemap = [];
 
-  // Skip database queries during build phase to avoid connection errors
-  // Blog posts will be added to sitemap at runtime
-  if (process.env.NEXT_PHASE !== 'phase-production-build') {
-    try {
-      const posts = await prisma.post.findMany({
-        where: { published: true },
-        select: {
-          slug: true,
-          updatedAt: true,
-          createdAt: true,
-        },
-        orderBy: { createdAt: 'desc' },
-      });
+  try {
+    const posts = await prisma.post.findMany({
+      where: { published: true },
+      select: {
+        slug: true,
+        updatedAt: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
-      blogPosts = posts.map((post) => ({
-        url: `${baseUrl}/blog/${post.slug}`,
-        lastModified: post.updatedAt || post.createdAt,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }));
-    } catch {
-      // Database unavailable - return static pages only
-    }
+    blogPosts = posts.map((post) => ({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: post.updatedAt || post.createdAt,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+  } catch {
+    // Database unavailable - return static pages only
   }
 
   return [...staticPages, ...blogPosts];

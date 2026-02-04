@@ -49,33 +49,30 @@ export default async function BlogPage({
   }> = [];
   let total = 0;
 
-  // Skip database queries during build phase to avoid connection errors
-  if (process.env.NEXT_PHASE !== 'phase-production-build') {
-    try {
-      [posts, total] = await Promise.all([
-        prisma.post.findMany({
-          where: { published: true },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            excerpt: true,
-            content: true,
-            thumbnail: true,
-            createdAt: true,
-            _count: {
-              select: { comments: true },
-            },
+  try {
+    [posts, total] = await Promise.all([
+      prisma.post.findMany({
+        where: { published: true },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          content: true,
+          thumbnail: true,
+          createdAt: true,
+          _count: {
+            select: { comments: true },
           },
-          orderBy: { createdAt: 'desc' },
-          skip,
-          take: limit,
-        }),
-        prisma.post.count({ where: { published: true } }),
-      ]);
-    } catch {
-      // Database unavailable - continue with empty posts
-    }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.post.count({ where: { published: true } }),
+    ]);
+  } catch {
+    // Database unavailable - continue with empty posts
   }
 
   const totalPages = Math.ceil(total / limit);

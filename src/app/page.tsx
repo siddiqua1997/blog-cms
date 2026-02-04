@@ -163,26 +163,23 @@ export default async function HomePage() {
     createdAt: Date;
   }> = [];
 
-  // Skip database queries during build phase to avoid connection errors
-  if (process.env.NEXT_PHASE !== 'phase-production-build') {
-    try {
-      recentPosts = await prisma.post.findMany({
-        where: { published: true },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          content: true,
-          thumbnail: true,
-          createdAt: true,
-        },
-        orderBy: { createdAt: 'desc' },
-        take: 3,
-      });
-    } catch {
-      // Database unavailable - continue with empty posts
-    }
+  try {
+    recentPosts = await prisma.post.findMany({
+      where: { published: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        content: true,
+        thumbnail: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+    });
+  } catch {
+    // Database unavailable - continue with empty posts
   }
 
   return (

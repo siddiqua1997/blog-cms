@@ -26,11 +26,6 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
     createdAt: Date;
   }> = [];
 
-  // Skip database queries during build phase
-  if (process.env.NEXT_PHASE === 'phase-production-build') {
-    return null;
-  }
-
   try {
     posts = await prisma.post.findMany({
       where: {

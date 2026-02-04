@@ -25,26 +25,10 @@ type PageProps = {
 export const revalidate = 60;
 export const dynamic = 'force-dynamic';
 
-// Generate static params for all published posts at build time
-// Returns empty array if database is unavailable (common in serverless builds)
+// Generate static params - return empty to use on-demand generation
+// With force-dynamic, pages are rendered at request time anyway
 export async function generateStaticParams() {
-  // Skip database queries during Next.js build phase to avoid connection errors
-  // Pages will be generated on-demand at runtime instead
-  // NEXT_PHASE is only set during build, not at runtime
-  if (process.env.NEXT_PHASE === 'phase-production-build') {
-    return [];
-  }
-
-  try {
-    const posts = await prisma.post.findMany({
-      where: { published: true },
-      select: { slug: true },
-    });
-    return posts.map((post) => ({ slug: post.slug }));
-  } catch {
-    // Database unavailable at build time - pages will be generated on-demand
-    return [];
-  }
+  return [];
 }
 
 // Generate SEO metadata with smart fallbacks
