@@ -49,8 +49,8 @@ export default async function BlogPage({
   }> = [];
   let total = 0;
 
-  // Skip database queries during Netlify builds to avoid connection errors
-  if (process.env.NETLIFY !== 'true') {
+  // Skip database queries during build phase to avoid connection errors
+  if (process.env.NEXT_PHASE !== 'phase-production-build') {
     try {
       [posts, total] = await Promise.all([
         prisma.post.findMany({

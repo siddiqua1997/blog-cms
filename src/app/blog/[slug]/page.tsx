@@ -28,9 +28,10 @@ export const dynamic = 'force-dynamic';
 // Generate static params for all published posts at build time
 // Returns empty array if database is unavailable (common in serverless builds)
 export async function generateStaticParams() {
-  // Skip database queries during Netlify builds to avoid connection errors
+  // Skip database queries during Next.js build phase to avoid connection errors
   // Pages will be generated on-demand at runtime instead
-  if (process.env.NETLIFY === 'true') {
+  // NEXT_PHASE is only set during build, not at runtime
+  if (process.env.NEXT_PHASE === 'phase-production-build') {
     return [];
   }
 

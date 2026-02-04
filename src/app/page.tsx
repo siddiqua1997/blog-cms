@@ -163,8 +163,8 @@ export default async function HomePage() {
     createdAt: Date;
   }> = [];
 
-  // Skip database queries during Netlify builds to avoid connection errors
-  if (process.env.NETLIFY !== 'true') {
+  // Skip database queries during build phase to avoid connection errors
+  if (process.env.NEXT_PHASE !== 'phase-production-build') {
     try {
       recentPosts = await prisma.post.findMany({
         where: { published: true },

@@ -71,9 +71,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic blog post pages
   let blogPosts: MetadataRoute.Sitemap = [];
 
-  // Skip database queries during Netlify builds to avoid connection errors
+  // Skip database queries during build phase to avoid connection errors
   // Blog posts will be added to sitemap at runtime
-  if (process.env.NETLIFY !== 'true') {
+  if (process.env.NEXT_PHASE !== 'phase-production-build') {
     try {
       const posts = await prisma.post.findMany({
         where: { published: true },
