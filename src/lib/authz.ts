@@ -9,7 +9,7 @@ import { getEnv } from './env';
  * Currently implements single super-admin model.
  *
  * Architecture Decision:
- * - Only ONE admin: superadmin@toxictuning.com
+ * - Only ONE admin: The email set in ADMIN_EMAIL env var
  * - All admin actions check against this email
  * - Future: Can extend to role-based (admin, editor, viewer)
  *

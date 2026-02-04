@@ -119,7 +119,7 @@ NEXT_PUBLIC_APP_URL=https://your-site.netlify.app
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
-ADMIN_EMAIL=superadmin@toxictuning.com
+ADMIN_EMAIL=your-admin-email@example.com
 ```
 
 ### Step 3: Deploy
@@ -223,7 +223,7 @@ Visit `/admin/setup` to create your admin account:
 
 1. Go to `https://your-site.netlify.app/admin/setup`
 2. Enter admin details:
-   - Email: `superadmin@toxictuning.com` (must match `ADMIN_EMAIL`)
+   - Email: Must match your `ADMIN_EMAIL` environment variable
    - Password: Choose a strong password
    - Name: Your display name
 3. Click "Create Admin Account"

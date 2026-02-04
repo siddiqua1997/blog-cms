@@ -18,7 +18,7 @@ datasource db {
 }
 
 // User model - Admin authentication
-// Only superadmin@toxictuning.com has admin privileges
+// Only the email matching ADMIN_EMAIL env var has admin privileges
 model User {
   id           String    @id @default(cuid())
   email        String    @unique
