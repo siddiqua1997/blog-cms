@@ -1,0 +1,143 @@
+// Prisma Schema for Toxic Tuning Blog CMS
+// Production-ready schema with PostgreSQL support, SEO fields, and spam filtering
+
+generator client {
+  provider = "prisma-client-js"
+  // Enable query engine for serverless environments (Netlify, Vercel, etc.)
+  // This bundles the query engine with the client for faster cold starts
+  previewFeatures = ["driverAdapters"]
+}
+
+// PostgreSQL for production - use Neon or Supabase for serverless-friendly hosting
+// Connection pooling is handled by these providers, ensuring stable serverless connections
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Use a non-pooled connection for migrations and introspection
+  directUrl = env("DIRECT_URL")
+}
+
+// User model - Admin authentication
+// Only superadmin@toxictuning.com has admin privileges
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String    // PBKDF2 hashed password with salt
+  name         String
+  role         String    @default("admin")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
+
+  @@index([email])
+}
+
+// Session model - For session-based authentication
+// Uses secure, random tokens stored in HTTP-only cookies
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+  @@index([userId])
+}
+
+// Post model - Core content entity for blog posts
+// Includes SEO fields and thumbnail for social sharing
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique // URL-friendly identifier, auto-generated from title
+  content   String   // Markdown content - supports embedded images via ![alt](url)
+  excerpt   String?  // Optional summary for listing pages and SEO
+  published Boolean  @default(false) // Draft/published status for editorial workflow
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // SEO and Social Media Fields
+  // Separate thumbnail for blog cards and OpenGraph images
+  thumbnail String?  // Cloudinary URL for post thumbnail (used on blog cards)
+  seoTitle  String?  // Custom SEO title (falls back to post title)
+  seoDesc   String?  // Custom meta description (falls back to excerpt)
+  seoImage  String?  // Custom OpenGraph image (falls back to thumbnail)
+
+  // Relations
+  images   PostImage[]
+  comments Comment[]
+
+  // Indexes for common queries
+  @@index([published, createdAt(sort: Desc)]) // For listing published posts
+  @@index([slug]) // For single post lookup
+}
+
+// PostImage model - Tracks images uploaded for posts
+// Enables image management and cleanup when posts are deleted
+model PostImage {
+  id        String   @id @default(cuid())
+  url       String   // Full URL to Cloudinary
+  altText   String?  // Accessibility text for the image
+  publicId  String?  // Cloudinary public ID for deletion
+  createdAt DateTime @default(now())
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
+
+// ContactMessage model - Stores contact form submissions
+// Public users can submit; only admin can view
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  read      Boolean  @default(false) // For admin to track unread messages
+  createdAt DateTime @default(now())
+
+  @@index([read, createdAt(sort: Desc)]) // For admin message list
+}
+
+// Comment model - User comments on blog posts
+// Supports spam filtering with status field
+model Comment {
+  id        String        @id @default(cuid())
+  name      String        // Commenter's display name
+  email     String?       // Optional email for notifications (not displayed publicly)
+  content   String        // Comment text
+  status    CommentStatus @default(PENDING) // Spam filter result
+  approved  Boolean       @default(false) // Only approved comments show on public posts
+  createdAt DateTime      @default(now())
+
+  postId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, approved]) // For fetching approved comments per post
+  @@index([status, createdAt(sort: Desc)]) // For admin moderation queue
+  @@index([approved, createdAt(sort: Desc)])
+}
+
+// Comment status for spam filtering workflow
+// PENDING: Awaiting review, APPROVED: Visible, SPAM: Blocked, REJECTED: Manual rejection
+enum CommentStatus {
+  PENDING
+  APPROVED
+  SPAM
+  REJECTED
+}
+
+// Subscriber model - Newsletter email collection
+// Stores emails from the footer subscribe form
+// Ready for future integration with Mailchimp, SendGrid, etc.
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique // Ensures no duplicate subscriptions
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt(sort: Desc)])
+}

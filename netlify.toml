@@ -1,0 +1,91 @@
+# Netlify Configuration for Toxic Tuning Blog CMS
+# Next.js 14 App Router with serverless functions
+
+[build]
+  # Build command - generates optimized production build
+  command = "npm run build"
+
+  # Output directory for Next.js
+  publish = ".next"
+
+[build.environment]
+  # Use Node.js 20 for better performance
+  NODE_VERSION = "20"
+
+  # Ensure npm uses latest version
+  NPM_VERSION = "10"
+
+# Next.js Runtime Plugin for Netlify
+# This enables Server-Side Rendering and API routes on Netlify
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Environment variable configuration
+# These are placeholders - set actual values in Netlify Dashboard > Site Settings > Environment Variables
+[context.production.environment]
+  NODE_ENV = "production"
+
+[context.deploy-preview.environment]
+  NODE_ENV = "production"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "production"
+
+# Headers for security and caching
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Security headers
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+    # Content Security Policy - adjust as needed for your CDN
+    # Content-Security-Policy = "default-src 'self'; img-src 'self' https://res.cloudinary.com data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+
+# Cache static assets
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.ico"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# API routes - no caching
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Cache-Control = "no-store, must-revalidate"
+
+# Redirects (optional - add custom redirects here)
+# [[redirects]]
+#   from = "/old-blog/*"
+#   to = "/blog/:splat"
+#   status = 301
+
+# Functions configuration
+[functions]
+  # Use Node.js runtime (not Edge) for compatibility
+  node_bundler = "esbuild"
+
+  # Increase timeout for database operations (max 26 seconds for Netlify)
+  [functions."*"]
+    # Directory for serverless functions
+    directory = ".netlify/functions-internal"
+
+# Dev server configuration
+[dev]
+  command = "npm run dev"
+  port = 3000
+  targetPort = 3000
+  autoLaunch = false
