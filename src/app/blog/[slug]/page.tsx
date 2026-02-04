@@ -23,6 +23,7 @@ type PageProps = {
 
 // ISR: Revalidate every 60 seconds for fresh content
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 // Generate static params for all published posts at build time
 // Returns empty array if database is unavailable (common in serverless builds)

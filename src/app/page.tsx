@@ -9,6 +9,7 @@ import TestimonialsSlider from './components/TestimonialsSlider';
 import ParallaxHero from './components/ParallaxHero';
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 // Sample featured projects data
 const featuredProjects = [

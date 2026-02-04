@@ -21,6 +21,7 @@ export const metadata: Metadata = generateBlogListMetadata();
 
 // ISR: Revalidate every 60 seconds
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 type SearchParams = Promise<{ page?: string }>;
 
