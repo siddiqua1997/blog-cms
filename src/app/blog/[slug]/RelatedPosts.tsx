@@ -26,6 +26,11 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
     createdAt: Date;
   }> = [];
 
+  // Skip database queries during Netlify builds
+  if (process.env.NETLIFY === 'true') {
+    return null;
+  }
+
   try {
     posts = await prisma.post.findMany({
       where: {

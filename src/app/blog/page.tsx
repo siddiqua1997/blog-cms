@@ -49,30 +49,33 @@ export default async function BlogPage({
   }> = [];
   let total = 0;
 
-  try {
-    [posts, total] = await Promise.all([
-      prisma.post.findMany({
-        where: { published: true },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          content: true,
-          thumbnail: true,
-          createdAt: true,
-          _count: {
-            select: { comments: true },
+  // Skip database queries during Netlify builds to avoid connection errors
+  if (process.env.NETLIFY !== 'true') {
+    try {
+      [posts, total] = await Promise.all([
+        prisma.post.findMany({
+          where: { published: true },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            content: true,
+            thumbnail: true,
+            createdAt: true,
+            _count: {
+              select: { comments: true },
+            },
           },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.post.count({ where: { published: true } }),
-    ]);
-  } catch {
-    console.warn('Database unavailable - blog listing will be empty');
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+        prisma.post.count({ where: { published: true } }),
+      ]);
+    } catch {
+      // Database unavailable - continue with empty posts
+    }
   }
 
   const totalPages = Math.ceil(total / limit);

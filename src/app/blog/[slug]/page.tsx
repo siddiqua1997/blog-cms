@@ -28,6 +28,12 @@ export const dynamic = 'force-dynamic';
 // Generate static params for all published posts at build time
 // Returns empty array if database is unavailable (common in serverless builds)
 export async function generateStaticParams() {
+  // Skip database queries during Netlify builds to avoid connection errors
+  // Pages will be generated on-demand at runtime instead
+  if (process.env.NETLIFY === 'true') {
+    return [];
+  }
+
   try {
     const posts = await prisma.post.findMany({
       where: { published: true },
@@ -36,7 +42,6 @@ export async function generateStaticParams() {
     return posts.map((post) => ({ slug: post.slug }));
   } catch {
     // Database unavailable at build time - pages will be generated on-demand
-    console.warn('Database unavailable during build - skipping static generation for blog posts');
     return [];
   }
 }

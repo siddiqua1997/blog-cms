@@ -163,24 +163,26 @@ export default async function HomePage() {
     createdAt: Date;
   }> = [];
 
-  try {
-    recentPosts = await prisma.post.findMany({
-      where: { published: true },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        content: true,
-        thumbnail: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 3,
-    });
-  } catch {
-    // Database unavailable - continue with empty posts
-    console.warn('Database unavailable - blog preview will be empty');
+  // Skip database queries during Netlify builds to avoid connection errors
+  if (process.env.NETLIFY !== 'true') {
+    try {
+      recentPosts = await prisma.post.findMany({
+        where: { published: true },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          content: true,
+          thumbnail: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+      });
+    } catch {
+      // Database unavailable - continue with empty posts
+    }
   }
 
   return (
