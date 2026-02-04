@@ -173,6 +173,8 @@ npx prisma generate
 
 # Deploy migrations to production database
 DATABASE_URL="your-production-url" npx prisma migrate deploy
+# Or using npm script
+npm run db:migrate:deploy
 ```
 
 ### Subsequent Migrations
