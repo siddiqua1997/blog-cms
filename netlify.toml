@@ -15,6 +15,9 @@
   # Ensure npm uses latest version
   NPM_VERSION = "10"
 
+  # Netlify secrets scanning: omit server-side env keys that are expected at runtime
+  SECRETS_SCAN_OMIT_KEYS = "ADMIN_EMAIL,CLOUDINARY_API_KEY,CLOUDINARY_API_SECRET,DATABASE_URL,DIRECT_URL"
+
 # Next.js Runtime Plugin for Netlify
 # This enables Server-Side Rendering and API routes on Netlify
 [[plugins]]
