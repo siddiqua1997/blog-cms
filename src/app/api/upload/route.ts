@@ -4,6 +4,7 @@ import { requireAdminResponse } from '@/lib/authz';
 import { rateLimitMiddleware, rateLimitPresets } from '@/lib/rateLimit';
 import { apiSuccess, apiError, errors, ApiError } from '@/lib/apiResponse';
 import { handleError } from '@/lib/errorHandler';
+import { getEnv } from '@/lib/env';
 
 /**
  * Image Upload API Route
@@ -30,9 +31,9 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 // Note: These are read at runtime, not build time
 function configureCloudinary() {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: getEnv('CLOUDINARY_CLOUD_NAME'),
+    api_key: getEnv('CLOUDINARY_API_KEY'),
+    api_secret: getEnv('CLOUDINARY_API_SECRET'),
     secure: true,
   });
 }
@@ -102,11 +103,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Check Cloudinary configuration
-    if (
-      !process.env.CLOUDINARY_CLOUD_NAME ||
-      !process.env.CLOUDINARY_API_KEY ||
-      !process.env.CLOUDINARY_API_SECRET
-    ) {
+    const cloudName = getEnv('CLOUDINARY_CLOUD_NAME');
+    const apiKey = getEnv('CLOUDINARY_API_KEY');
+    const apiSecret = getEnv('CLOUDINARY_API_SECRET');
+    if (!cloudName || !apiKey || !apiSecret) {
       console.error('Cloudinary credentials not configured');
       return errors.serviceUnavailable('Image upload service not configured');
     }
@@ -199,7 +199,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Check Cloudinary configuration
-    if (!process.env.CLOUDINARY_CLOUD_NAME) {
+    if (!getEnv('CLOUDINARY_CLOUD_NAME')) {
       return errors.serviceUnavailable('Image upload service not configured');
     }
 

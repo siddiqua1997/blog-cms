@@ -6,6 +6,7 @@ import { requireAdminResponse, isSessionAdmin } from '@/lib/authz';
 import { rateLimitMiddleware, rateLimitPresets } from '@/lib/rateLimit';
 import { apiSuccess, errors } from '@/lib/apiResponse';
 import { handleError } from '@/lib/errorHandler';
+import { getEnv } from '@/lib/env';
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -256,12 +257,12 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
       .map((img) => img.publicId)
       .filter((id): id is string => id !== null);
 
-    if (imagePublicIds.length > 0 && process.env.CLOUDINARY_CLOUD_NAME) {
+    if (imagePublicIds.length > 0 && getEnv('CLOUDINARY_CLOUD_NAME')) {
       try {
         cloudinary.config({
-          cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-          api_key: process.env.CLOUDINARY_API_KEY,
-          api_secret: process.env.CLOUDINARY_API_SECRET,
+          cloud_name: getEnv('CLOUDINARY_CLOUD_NAME'),
+          api_key: getEnv('CLOUDINARY_API_KEY'),
+          api_secret: getEnv('CLOUDINARY_API_SECRET'),
         });
 
         await cloudinary.api.delete_resources(imagePublicIds);

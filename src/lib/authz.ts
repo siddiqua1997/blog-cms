@@ -1,5 +1,6 @@
 import { getSession } from './auth';
 import { apiError, ApiError } from './apiResponse';
+import { getEnv } from './env';
 
 /**
  * Authorization Module
@@ -16,9 +17,6 @@ import { apiError, ApiError } from './apiResponse';
  * - API routes: Use requireAdmin() to protect endpoints
  * - Server components: Use isAdmin() for conditional rendering
  */
-
-// The only admin email - configured via environment variable
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
 /**
  * Get the current session user's email
@@ -45,8 +43,9 @@ export async function getSessionUserEmail(): Promise<string | null> {
  */
 export function isAdmin(email: string | null | undefined): boolean {
   if (!email) return false;
-  if (!ADMIN_EMAIL) return false;
-  return email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const adminEmail = getEnv('ADMIN_EMAIL');
+  if (!adminEmail) return false;
+  return email.toLowerCase() === adminEmail.toLowerCase();
 }
 
 /**
