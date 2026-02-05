@@ -21,11 +21,10 @@ export const metadata: Metadata = {
   description: 'Unleash your vehicle\'s true potential with precision ECU remapping, dyno testing, and performance upgrades. Premium automotive tuning services.',
   keywords: ['car tuning', 'ECU remapping', 'performance tuning', 'dyno testing', 'automotive performance', 'engine tuning', 'turbo tuning'],
   icons: {
-    icon: 'https://www.toxictuning.com/favicon.ico',
-    shortcut: 'https://www.toxictuning.com/favicon.ico',
-    apple: 'https://www.toxictuning.com/apple-touch-icon.png',
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
   },
-  manifest: 'https://www.toxictuning.com/site.webmanifest',
+  manifest: '/site.webmanifest',
   openGraph: {
     title: 'Toxic Tuning | Premium Automotive Performance Engineering',
     description: 'Unleash your vehicle\'s true potential with precision ECU remapping and dyno-proven results.',
