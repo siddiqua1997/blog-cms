@@ -1,6 +1,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import { generateBreadcrumbJsonLd } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://toxictuning.com';
+
+export const metadata: Metadata = {
+  title: 'Projects',
+  description: 'Explore recent performance builds, dyno results, and transformations from Toxic Tuning.',
+  alternates: {
+    canonical: `${baseUrl}/projects`,
+  },
+  openGraph: {
+    title: 'Projects | Toxic Tuning',
+    description: 'Explore recent performance builds, dyno results, and transformations from Toxic Tuning.',
+    url: `${baseUrl}/projects`,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Projects | Toxic Tuning',
+    description: 'Explore recent performance builds, dyno results, and transformations from Toxic Tuning.',
+  },
+};
 
 const projects = [
   {
@@ -30,8 +52,17 @@ const projects = [
 ];
 
 export default function ProjectsPage() {
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+    { name: 'Home', url: baseUrl },
+    { name: 'Projects', url: `${baseUrl}/projects` },
+  ]);
+
   return (
     <div className="bg-pure-black text-pure-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: breadcrumbJsonLd }}
+      />
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-pure-black relative overflow-hidden">
         <div className="absolute inset-0">
           <div

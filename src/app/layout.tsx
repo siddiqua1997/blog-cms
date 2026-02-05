@@ -14,12 +14,16 @@ import { generateOrganizationJsonLd, generateWebsiteJsonLd } from '@/lib/seo';
  */
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://toxictuning.com'),
   title: {
     default: 'Toxic Tuning | Premium Automotive Performance Engineering',
     template: '%s | Toxic Tuning',
   },
   description: 'Unleash your vehicle\'s true potential with precision ECU remapping, dyno testing, and performance upgrades. Premium automotive tuning services.',
   keywords: ['car tuning', 'ECU remapping', 'performance tuning', 'dyno testing', 'automotive performance', 'engine tuning', 'turbo tuning'],
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
@@ -30,11 +34,20 @@ export const metadata: Metadata = {
     description: 'Unleash your vehicle\'s true potential with precision ECU remapping and dyno-proven results.',
     type: 'website',
     locale: 'en_US',
+    images: [
+      {
+        url: '/og-default.svg',
+        width: 1200,
+        height: 630,
+        alt: 'Toxic Tuning',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Toxic Tuning | Premium Automotive Performance Engineering',
     description: 'Unleash your vehicle\'s true potential with precision ECU remapping and dyno-proven results.',
+    images: ['/og-default.svg'],
   },
 };
 

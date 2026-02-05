@@ -1,4 +1,25 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://toxictuning.com';
+
+export const metadata: Metadata = {
+  title: 'Terms of Service',
+  description: 'Review the terms that govern use of our site and services.',
+  alternates: {
+    canonical: `${baseUrl}/terms`,
+  },
+  openGraph: {
+    title: 'Terms of Service | Toxic Tuning',
+    description: 'Review the terms that govern use of our site and services.',
+    url: `${baseUrl}/terms`,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Terms of Service | Toxic Tuning',
+    description: 'Review the terms that govern use of our site and services.',
+  },
+};
 
 export default function TermsPage() {
   return (

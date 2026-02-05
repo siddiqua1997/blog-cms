@@ -1,4 +1,25 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://toxictuning.com';
+
+export const metadata: Metadata = {
+  title: 'FAQ',
+  description: 'Answers to the most common questions about tuning, dyno testing, and performance packages.',
+  alternates: {
+    canonical: `${baseUrl}/faq`,
+  },
+  openGraph: {
+    title: 'FAQ | Toxic Tuning',
+    description: 'Answers to the most common questions about tuning, dyno testing, and performance packages.',
+    url: `${baseUrl}/faq`,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FAQ | Toxic Tuning',
+    description: 'Answers to the most common questions about tuning, dyno testing, and performance packages.',
+  },
+};
 
 const faqs = [
   {

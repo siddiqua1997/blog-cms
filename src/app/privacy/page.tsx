@@ -1,4 +1,25 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://toxictuning.com';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description: 'Read how Toxic Tuning collects, uses, and protects your information.',
+  alternates: {
+    canonical: `${baseUrl}/privacy`,
+  },
+  openGraph: {
+    title: 'Privacy Policy | Toxic Tuning',
+    description: 'Read how Toxic Tuning collects, uses, and protects your information.',
+    url: `${baseUrl}/privacy`,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Privacy Policy | Toxic Tuning',
+    description: 'Read how Toxic Tuning collects, uses, and protects your information.',
+  },
+};
 
 export default function PrivacyPage() {
   return (

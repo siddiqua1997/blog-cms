@@ -17,7 +17,7 @@ const SITE_CONFIG = {
   name: 'Toxic Tuning',
   tagline: 'Performance Tuning Excellence',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://toxictuning.com',
-  defaultImage: '/og-default.jpg', // Place a default OG image in /public
+  defaultImage: '/og-default.svg', // Default OG image in /public
   twitterHandle: '@tuningtoxic', // Update with your Twitter handle
   locale: 'en_US',
 };
