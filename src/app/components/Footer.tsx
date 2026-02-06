@@ -193,9 +193,11 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-8 lg:mb-0">
             <Link href="/" className="flex items-center gap-3 mb-6 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-xl flex items-center justify-center shadow-lg shadow-red-900/30">
-                <span className="text-2xl font-black text-pure-white">T</span>
-              </div>
+              <img
+                src="/favicon.svg"
+                alt="Toxic Tuning"
+                className="w-12 h-12 rounded-xl shadow-lg shadow-red-900/30"
+              />
             </Link>
             <p className="text-grey-500 text-sm leading-relaxed mb-6">
               Premium automotive performance engineering. Unleashing the true potential of your vehicle through precision ECU tuning and dyno-proven results.
