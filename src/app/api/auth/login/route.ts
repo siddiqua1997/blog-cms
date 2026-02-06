@@ -1,8 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { login } from '@/lib/auth';
+import { rateLimitMiddleware, rateLimitPresets } from '@/lib/rateLimit';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.auth);
+    if (rateLimit.response) {
+      return rateLimit.response;
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {

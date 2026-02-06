@@ -32,7 +32,7 @@ type RouteContext = {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.read);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.read);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -225,7 +225,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
  */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }

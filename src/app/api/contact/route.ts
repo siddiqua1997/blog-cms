@@ -31,7 +31,7 @@ import { handleError, validateEmail, validateLength } from '@/lib/errorHandler';
 export async function POST(request: NextRequest) {
   try {
     // Strict rate limiting for contact form
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.contact);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.contact);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.read);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.read);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -182,7 +182,7 @@ export async function PATCH(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }

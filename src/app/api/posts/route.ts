@@ -42,7 +42,7 @@ import { handleError, validateRequired } from '@/lib/errorHandler';
 export async function GET(request: NextRequest) {
   try {
     // Rate limiting - relaxed for reads
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.read);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.read);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting - moderate for writes
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }

@@ -68,7 +68,7 @@ function toCloudinaryApiError(error: unknown): ApiError {
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting - strict for uploads
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.upload);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.upload);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // Rate limiting
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }

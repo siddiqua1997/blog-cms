@@ -15,6 +15,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
+import { requireAdmin } from '@/lib/authz';
 import { generateUniqueSlug } from '@/lib/slugify';
 import { generateExcerpt, extractImageUrls } from '@/lib/markdown';
 
@@ -27,6 +28,12 @@ import { generateExcerpt, extractImageUrls } from '@/lib/markdown';
  * Called from admin/posts/new form
  */
 export async function createPost(formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { error: 'Unauthorized: Admin access required' };
+  }
+
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
   const published = formData.get('published') === 'on';
@@ -88,6 +95,12 @@ export async function createPost(formData: FormData) {
  * Called from admin/posts/[id]/edit form
  */
 export async function updatePost(id: string, formData: FormData) {
+  try {
+    await requireAdmin();
+  } catch {
+    return { error: 'Unauthorized: Admin access required' };
+  }
+
   const title = formData.get('title') as string;
   const content = formData.get('content') as string;
   const published = formData.get('published') === 'on';
@@ -144,6 +157,12 @@ export async function updatePost(id: string, formData: FormData) {
  */
 export async function deletePost(id: string): Promise<void> {
   try {
+    await requireAdmin();
+  } catch {
+    return;
+  }
+
+  try {
     // Note: PostImage and Comment cascade delete is handled by Prisma schema
     // onDelete: Cascade ensures related records are automatically removed
     await prisma.post.delete({
@@ -163,6 +182,12 @@ export async function deletePost(id: string): Promise<void> {
  * Quick action from post list
  */
 export async function togglePostPublished(id: string): Promise<void> {
+  try {
+    await requireAdmin();
+  } catch {
+    return;
+  }
+
   try {
     const post = await prisma.post.findUnique({
       where: { id },
@@ -194,6 +219,12 @@ export async function togglePostPublished(id: string): Promise<void> {
  * Design: Toggle pattern for easy moderation workflow
  */
 export async function toggleCommentApproval(id: string): Promise<void> {
+  try {
+    await requireAdmin();
+  } catch {
+    return;
+  }
+
   try {
     const comment = await prisma.comment.findUnique({
       where: { id },
@@ -228,6 +259,12 @@ export async function toggleCommentApproval(id: string): Promise<void> {
  * Does not affect post integrity (no cascade up)
  */
 export async function deleteComment(id: string): Promise<void> {
+  try {
+    await requireAdmin();
+  } catch {
+    return;
+  }
+
   try {
     await prisma.comment.delete({
       where: { id },

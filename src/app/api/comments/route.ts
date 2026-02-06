@@ -41,7 +41,7 @@ import { checkSpam, sanitizeComment } from '@/lib/spamFilter';
 export async function POST(request: NextRequest) {
   try {
     // Strict rate limiting for comment submissions
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.comment);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.comment);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.read);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.read);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -211,7 +211,7 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }
@@ -285,7 +285,7 @@ export async function PATCH(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.write);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.write);
     if (rateLimit.response) {
       return rateLimit.response;
     }

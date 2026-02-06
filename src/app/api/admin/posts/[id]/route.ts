@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { requireAdminResponse } from '@/lib/authz';
 import { generateExcerpt, extractImageUrls } from '@/lib/markdown';
 
 /**
@@ -21,6 +22,11 @@ type RouteContext = {
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
+    const auth = await requireAdminResponse();
+    if (auth.error) {
+      return auth.error;
+    }
+
     const { id } = await context.params;
 
     const post = await prisma.post.findUnique({
@@ -58,6 +64,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
+    const auth = await requireAdminResponse();
+    if (auth.error) {
+      return auth.error;
+    }
+
     const { id } = await context.params;
     const body = await request.json();
     const { title, content, published } = body;
@@ -144,6 +155,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
  */
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
+    const auth = await requireAdminResponse();
+    if (auth.error) {
+      return auth.error;
+    }
+
     const { id } = await context.params;
 
     // Check post exists

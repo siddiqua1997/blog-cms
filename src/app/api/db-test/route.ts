@@ -1,11 +1,17 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { requireAdminResponse } from '@/lib/authz';
 
 /**
  * GET /api/db-test
  * Database connection test - shows actual error message
  */
 export async function GET() {
+  const auth = await requireAdminResponse();
+  if (auth.error) {
+    return auth.error;
+  }
+
   const prisma = new PrismaClient();
 
   try {
@@ -20,19 +26,13 @@ export async function GET() {
     return NextResponse.json({
       status: 'connected',
       result,
-      dbUrlPreview: process.env.DATABASE_URL?.substring(0, 50) + '...',
     });
   } catch (error: unknown) {
     await prisma.$disconnect().catch(() => {});
 
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorCode = (error as { code?: string })?.code;
-
     return NextResponse.json({
       status: 'failed',
-      error: errorMessage,
-      code: errorCode,
-      dbUrlPreview: process.env.DATABASE_URL?.substring(0, 50) + '...',
+      error: 'Database connection failed',
     }, { status: 500 });
   }
 }

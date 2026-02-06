@@ -21,14 +21,26 @@
  */
 
 import { NextRequest } from 'next/server';
+import { Redis } from '@upstash/redis';
 
 // Configuration defaults
 const DEFAULT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'); // 1 minute
 const DEFAULT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100');
 
-// In-memory store for rate limiting
+// In-memory store for rate limiting (fallback)
 // Key: identifier (IP or user ID), Value: array of request timestamps
 const requestStore = new Map<string, number[]>();
+
+// Optional Upstash Redis (global rate limiting across serverless instances)
+const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+const redis =
+  upstashUrl && upstashToken
+    ? new Redis({
+        url: upstashUrl,
+        token: upstashToken,
+      })
+    : null;
 
 // Cleanup interval to prevent memory leaks
 const CLEANUP_INTERVAL_MS = 60000; // 1 minute
@@ -115,22 +127,50 @@ function cleanupExpiredEntries(windowMs: number): void {
  * @param config - Rate limit configuration
  * @returns Rate limit result with allowed status and metadata
  */
-export function checkRateLimit(
+export async function checkRateLimit(
   request: NextRequest,
   config: RateLimitConfig = {}
-): RateLimitResult {
+): Promise<RateLimitResult> {
   const {
     windowMs = DEFAULT_WINDOW_MS,
     maxRequests = DEFAULT_MAX_REQUESTS,
     keyGenerator = getClientIdentifier,
   } = config;
 
-  // Run cleanup periodically
-  cleanupExpiredEntries(windowMs);
-
   const now = Date.now();
   const key = keyGenerator(request);
   const windowStart = now - windowMs;
+
+  // Redis-backed rate limiting when available
+  if (redis) {
+    const bucket = Math.floor(now / windowMs);
+    const redisKey = `ratelimit:${key}:${bucket}`;
+    const count = await redis.incr(redisKey);
+    if (count === 1) {
+      await redis.pexpire(redisKey, windowMs);
+    }
+
+    const remaining = Math.max(0, maxRequests - count);
+    const resetAt = (bucket + 1) * windowMs;
+
+    if (count > maxRequests) {
+      return {
+        allowed: false,
+        remaining: 0,
+        resetAt,
+        retryAfterMs: Math.max(0, resetAt - now),
+      };
+    }
+
+    return {
+      allowed: true,
+      remaining,
+      resetAt,
+    };
+  }
+
+  // Run cleanup periodically (memory fallback)
+  cleanupExpiredEntries(windowMs);
 
   // Get existing timestamps for this key
   const timestamps = requestStore.get(key) || [];
@@ -185,11 +225,11 @@ export function checkRateLimit(
  * }
  * ```
  */
-export function rateLimitMiddleware(
+export async function rateLimitMiddleware(
   request: NextRequest,
   config?: RateLimitConfig
-): { response: Response | null; result: RateLimitResult } {
-  const result = checkRateLimit(request, config);
+): Promise<{ response: Response | null; result: RateLimitResult }> {
+  const result = await checkRateLimit(request, config);
 
   if (!result.allowed) {
     const response = new Response(

@@ -28,7 +28,7 @@ import { handleError, validateEmail } from '@/lib/errorHandler';
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting to prevent abuse
-    const rateLimit = rateLimitMiddleware(request, rateLimitPresets.contact);
+    const rateLimit = await rateLimitMiddleware(request, rateLimitPresets.contact);
     if (rateLimit.response) {
       return rateLimit.response;
     }
