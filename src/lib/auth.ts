@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import prisma from './prisma';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
 
 /**
  * Authentication Library
@@ -12,18 +13,30 @@ import crypto from 'crypto';
 const SESSION_COOKIE_NAME = 'toxic_session';
 const SESSION_DURATION_DAYS = 7;
 
-// Simple password hashing using crypto (no external dependency)
-// For production, consider using bcrypt or argon2
+const BCRYPT_PREFIX = 'bcrypt$';
+const BCRYPT_ROUNDS = 12;
+
+// Password hashing
 export function hashPassword(password: string): string {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
-  return `${salt}:${hash}`;
+  const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
+  return `${BCRYPT_PREFIX}${hash}`;
 }
 
-export function verifyPassword(password: string, storedHash: string): boolean {
+function verifyLegacyPassword(password: string, storedHash: string): boolean {
   const [salt, hash] = storedHash.split(':');
+  if (!salt || !hash) return false;
   const verifyHash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
   return hash === verifyHash;
+}
+
+export function verifyPassword(password: string, storedHash: string): { valid: boolean; needsRehash: boolean } {
+  if (storedHash.startsWith(BCRYPT_PREFIX)) {
+    const bcryptHash = storedHash.slice(BCRYPT_PREFIX.length);
+    return { valid: bcrypt.compareSync(password, bcryptHash), needsRehash: false };
+  }
+
+  const legacyValid = verifyLegacyPassword(password, storedHash);
+  return { valid: legacyValid, needsRehash: legacyValid };
 }
 
 export function generateSessionToken(): string {
@@ -101,10 +114,18 @@ export async function login(email: string, password: string): Promise<{ success:
     return { success: false, error: 'Invalid email or password' };
   }
 
-  const isValid = verifyPassword(password, user.passwordHash);
+  const verification = verifyPassword(password, user.passwordHash);
 
-  if (!isValid) {
+  if (!verification.valid) {
     return { success: false, error: 'Invalid email or password' };
+  }
+
+  if (verification.needsRehash) {
+    const newHash = hashPassword(password);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash: newHash },
+    });
   }
 
   await createSession(user.id);

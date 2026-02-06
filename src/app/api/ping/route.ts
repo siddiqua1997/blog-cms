@@ -13,6 +13,8 @@ export async function GET() {
       NODE_ENV: process.env.NODE_ENV,
       hasDbUrl: !!process.env.DATABASE_URL,
       hasDirectUrl: !!process.env.DIRECT_URL,
+      hasAdminEmail: !!process.env.ADMIN_EMAIL,
+      hasCloudinary: !!process.env.CLOUDINARY_CLOUD_NAME && !!process.env.CLOUDINARY_API_KEY && !!process.env.CLOUDINARY_API_SECRET,
     },
   });
 }

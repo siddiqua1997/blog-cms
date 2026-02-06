@@ -8,6 +8,8 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const origin = request.headers.get('origin');
   const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL;
+  const referer = request.headers.get('referer');
+  const isUnsafeMethod = !['GET', 'HEAD', 'OPTIONS'].includes(request.method);
 
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
@@ -33,6 +35,18 @@ export function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     response.headers.set('Vary', 'Origin');
+  }
+
+  // CSRF protection for state-changing requests to admin/API routes
+  if (isUnsafeMethod && (pathname.startsWith('/api') || pathname.startsWith('/admin'))) {
+    if (allowedOrigin) {
+      const originOk = origin === allowedOrigin;
+      const refererOk = referer ? referer.startsWith(allowedOrigin) : false;
+
+      if (!originOk && !refererOk) {
+        return new NextResponse('Forbidden', { status: 403 });
+      }
+    }
   }
 
   // Admin routes that don't require authentication
