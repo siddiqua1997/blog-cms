@@ -47,8 +47,8 @@ const nextConfig = {
       "frame-ancestors 'none'",
       "img-src 'self' data: https://res.cloudinary.com https://images.unsplash.com https://*.amazonaws.com",
       "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self' data:",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
       "connect-src 'self' https://res.cloudinary.com https://api.cloudinary.com",
       'upgrade-insecure-requests',
     ].join('; ');
