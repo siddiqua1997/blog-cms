@@ -169,26 +169,27 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const [comments, total] = await Promise.all([
-      prisma.comment.findMany({
-        where,
-        select: {
-          id: true,
-          name: true,
-          content: true,
-          createdAt: true,
-          ...(includeUnapproved && {
-            email: true,
-            approved: true,
-            status: true,
-          }),
-        },
-        orderBy: { createdAt: includeUnapproved ? 'desc' : 'asc' },
-        skip,
-        take: limit,
-      }),
-      prisma.comment.count({ where }),
-    ]);
+    const comments = await prisma.comment.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        content: true,
+        createdAt: true,
+        ...(includeUnapproved && {
+          email: true,
+          approved: true,
+          status: true,
+        }),
+      },
+      orderBy: { createdAt: includeUnapproved ? 'desc' : 'asc' },
+      skip,
+      take: limit,
+    });
+
+    const total = includeUnapproved
+      ? await prisma.comment.count({ where })
+      : comments.length + (comments.length === limit ? 1 : 0) + skip;
 
     const pagination = calculatePagination(page, limit, total);
 
