@@ -73,6 +73,36 @@ body[data-nav-lock='true'] a {
   cursor: progress;
 }
 
+.loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.loading-bar__inner {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, #ed3237, #ff5a5f, #ed3237);
+  animation: loading-bar 1.1s ease-in-out infinite;
+}
+
+@keyframes loading-bar {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(60%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
 /* Editorial Typography - Oswald Headings + Roboto Body */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);

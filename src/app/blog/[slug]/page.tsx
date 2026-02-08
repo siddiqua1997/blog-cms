@@ -24,7 +24,6 @@ type PageProps = {
 
 // ISR: Revalidate every 60 seconds for fresh content
 export const revalidate = 60;
-export const dynamic = 'force-dynamic';
 
 // Generate static params - return empty to use on-demand generation
 // With force-dynamic, pages are rendered at request time anyway
