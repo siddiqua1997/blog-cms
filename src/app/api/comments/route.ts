@@ -6,6 +6,7 @@ import { rateLimitMiddleware, rateLimitPresets } from '@/lib/rateLimit';
 import { apiSuccess, apiMessage, errors, calculatePagination } from '@/lib/apiResponse';
 import { handleError, validateLength, validateEmail } from '@/lib/errorHandler';
 import { checkSpam, sanitizeComment } from '@/lib/spamFilter';
+import { appCache } from '@/lib/lru';
 
 /**
  * Comments API Route
@@ -169,23 +170,37 @@ export async function GET(request: NextRequest) {
 
     const skip = (page - 1) * limit;
 
-    const comments = await prisma.comment.findMany({
-      where,
-      select: {
-        id: true,
-        name: true,
-        content: true,
-        createdAt: true,
-        ...(includeUnapproved && {
-          email: true,
-          approved: true,
-          status: true,
-        }),
-      },
-      orderBy: { createdAt: includeUnapproved ? 'desc' : 'asc' },
-      skip,
-      take: limit,
-    });
+    const cacheKey = `comments:${postId || 'all'}:${page}:${limit}`;
+    const comments = includeUnapproved
+      ? await prisma.comment.findMany({
+          where,
+          select: {
+            id: true,
+            name: true,
+            content: true,
+            createdAt: true,
+            email: true,
+            approved: true,
+            status: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        })
+      : await appCache.getOrSet(cacheKey, 300_000, async () =>
+          prisma.comment.findMany({
+            where,
+            select: {
+              id: true,
+              name: true,
+              content: true,
+              createdAt: true,
+            },
+            orderBy: { createdAt: 'asc' },
+            skip,
+            take: limit,
+          })
+        );
 
     const total = includeUnapproved
       ? await prisma.comment.count({ where })

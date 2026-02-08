@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import prisma from '@/lib/prisma';
-import { unstable_cache } from 'next/cache';
 import { generateBlogListMetadata } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
 import type { Metadata } from 'next';
 import SearchForm from './SearchForm';
 import BlogSearchResults from './BlogSearchResults';
+import { appCache } from '@/lib/lru';
 
 /**
  * Blog Listing Page
@@ -30,30 +30,26 @@ export default async function BlogPage() {
   const skip = (page - 1) * limit;
 
   const getBlogPageData = async () =>
-    unstable_cache(
-      async () => {
-        const posts = await prisma.post.findMany({
-          where: {
-            published: true,
-          },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            excerpt: true,
-            thumbnail: true,
-            createdAt: true,
-          },
-          orderBy: { createdAt: 'desc' },
-          skip,
-          take: limit,
-        });
+    appCache.getOrSet(`blog-list:${page}:${limit}`, 600_000, async () => {
+      const posts = await prisma.post.findMany({
+        where: {
+          published: true,
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          thumbnail: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      });
 
-        return { posts };
-      },
-      ['blog-list', String(page), String(limit)],
-      { revalidate: 600 }
-    )();
+      return { posts };
+    });
 
   let posts: Array<{
     id: string;

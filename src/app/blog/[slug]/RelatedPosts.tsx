@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import prisma from '@/lib/prisma';
-import { unstable_cache } from 'next/cache';
 import { isAllowedImageUrl } from '@/lib/images';
+import { appCache } from '@/lib/lru';
 
 /**
  * Related Posts Component for Internal Linking
@@ -26,27 +26,24 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
   }> = [];
 
   try {
-    posts = await unstable_cache(
-      async () =>
-        prisma.post.findMany({
-          where: {
-            published: true,
-            slug: { not: currentSlug },
-          },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            excerpt: true,
-            thumbnail: true,
-            createdAt: true,
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 3,
-        }),
-      ['related-posts', currentSlug],
-      { revalidate: 600 }
-    )();
+    posts = await appCache.getOrSet(`related-posts:${currentSlug}`, 600_000, async () =>
+      prisma.post.findMany({
+        where: {
+          published: true,
+          slug: { not: currentSlug },
+        },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          thumbnail: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+      })
+    );
 
     posts = posts.map((post) => ({
       ...post,

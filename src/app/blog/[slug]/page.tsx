@@ -2,12 +2,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import { markdownToHtml } from '@/lib/markdown';
-import { unstable_cache } from 'next/cache';
 import { generatePostMetadata, generateArticleJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo';
 import type { Metadata } from 'next';
 import CommentForm from './CommentForm';
 import RelatedPosts from './RelatedPosts';
 import CommentsSection from './CommentsSection';
+import { appCache } from '@/lib/lru';
 
 /**
  * Single Post Page
@@ -34,26 +34,23 @@ export async function generateStaticParams() {
 
 // Generate SEO metadata with smart fallbacks
 const getPostMeta = async (slug: string) =>
-  unstable_cache(
-    async () =>
-      prisma.post.findUnique({
-        where: { slug },
-        select: {
-          title: true,
-          slug: true,
-          content: true,
-          excerpt: true,
-          thumbnail: true,
-          seoTitle: true,
-          seoDesc: true,
-          seoImage: true,
-          createdAt: true,
-          updatedAt: true,
-        },
-      }),
-    ['post-meta', slug],
-    { revalidate: 600 }
-  )();
+  appCache.getOrSet(`post-meta:${slug}`, 600_000, async () =>
+    prisma.post.findUnique({
+      where: { slug },
+      select: {
+        title: true,
+        slug: true,
+        content: true,
+        excerpt: true,
+        thumbnail: true,
+        seoTitle: true,
+        seoDesc: true,
+        seoImage: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+  );
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
@@ -90,14 +87,11 @@ export default async function PostPage({ params }: PageProps) {
   let post: Awaited<ReturnType<typeof prisma.post.findUnique>> | null = null;
 
   try {
-    post = await unstable_cache(
-      async () =>
-        prisma.post.findUnique({
-          where: { slug },
-        }),
-      ['post', slug],
-      { revalidate: 600 }
-    )();
+    post = await appCache.getOrSet(`post:${slug}`, 600_000, async () =>
+      prisma.post.findUnique({
+        where: { slug },
+      })
+    );
 
     if (post) {
       post.createdAt = post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt);
