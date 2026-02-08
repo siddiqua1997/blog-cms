@@ -26,6 +26,9 @@ type PageProps = {
 // ISR: Revalidate every 600 seconds for fresh content
 export const revalidate = 600;
 
+// Force static rendering so edge caching can work
+export const dynamic = 'force-static';
+
 // Generate static params - return empty to use on-demand generation
 // With force-dynamic, pages are rendered at request time anyway
 export async function generateStaticParams() {

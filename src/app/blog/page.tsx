@@ -21,6 +21,9 @@ import { appCache } from '@/lib/lru';
 // Use SEO utility for consistent metadata
 export const metadata: Metadata = generateBlogListMetadata();
 
+// Force static rendering so edge caching can work
+export const dynamic = 'force-static';
+
 // ISR: Revalidate every 600 seconds
 export const revalidate = 600;
 

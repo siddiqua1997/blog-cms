@@ -55,6 +55,24 @@ const nextConfig = {
 
     return [
       {
+        source: '/blog',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
+        source: '/blog/:slug',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=600, stale-while-revalidate=86400',
+          },
+        ],
+      },
+      {
         source: '/(.*)',
         headers: [
           {
