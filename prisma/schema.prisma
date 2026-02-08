@@ -67,6 +67,8 @@ model Post {
 
   // Indexes for common queries
   @@index([published, createdAt(sort: Desc)]) // For listing published posts
+  @@index([createdAt(sort: Desc)]) // For admin list ordering without published filter
+  @@index([published]) // For filtering published-only queries
 }
 
 // PostImage model - Tracks images uploaded for posts
