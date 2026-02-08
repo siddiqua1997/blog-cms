@@ -2,7 +2,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import { unstable_cache } from 'next/cache';
-import { extractFirstImage } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
 
 /**
@@ -22,7 +21,6 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
     title: string;
     slug: string;
     excerpt: string | null;
-    content: string;
     thumbnail: string | null;
     createdAt: Date;
   }> = [];
@@ -40,7 +38,6 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
             title: true,
             slug: true,
             excerpt: true,
-            content: true,
             thumbnail: true,
             createdAt: true,
           },
@@ -63,10 +60,7 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
     return null;
   }
 
-  const getPostImage = (post: { thumbnail: string | null; content: string }) => {
-    if (post.thumbnail) return post.thumbnail;
-    return extractFirstImage(post.content);
-  };
+  const getPostImage = (post: { thumbnail: string | null }) => post.thumbnail;
 
   return (
     <section className="section-padding bg-pure-white border-t border-grey-200">

@@ -57,7 +57,6 @@ export default async function BlogPage({
               title: true,
               slug: true,
               excerpt: true,
-              content: true,
               thumbnail: true,
               createdAt: true,
               _count: {
@@ -94,7 +93,6 @@ export default async function BlogPage({
     title: string;
     slug: string;
     excerpt: string | null;
-    content: string;
     thumbnail: string | null;
     createdAt: Date;
     _count: { comments: number };
@@ -114,9 +112,8 @@ export default async function BlogPage({
   const totalPages = Math.ceil(total / limit);
 
   // Helper to get post image (thumbnail or first image from content)
-  const getPostImage = (post: { thumbnail: string | null; content: string }) => {
-    if (post.thumbnail) return post.thumbnail;
-    return extractFirstImage(post.content);
+  const getPostImage = (post: { thumbnail: string | null }) => {
+    return post.thumbnail;
   };
 
   return (
