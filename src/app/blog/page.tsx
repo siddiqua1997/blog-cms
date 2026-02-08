@@ -35,34 +35,24 @@ export default async function BlogPage({
   const getBlogPageData = async () =>
     unstable_cache(
       async () => {
-        const [posts, total] = await Promise.all([
-          prisma.post.findMany({
-            where: {
-              published: true,
-            },
-            select: {
-              id: true,
-              title: true,
-              slug: true,
-              excerpt: true,
-              thumbnail: true,
-              createdAt: true,
-              _count: {
-                select: { comments: true },
-              },
-            },
-            orderBy: { createdAt: 'desc' },
-            skip,
-            take: limit,
-          }),
-          prisma.post.count({
-            where: {
-              published: true,
-            },
-          }),
-        ]);
+        const posts = await prisma.post.findMany({
+          where: {
+            published: true,
+          },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            thumbnail: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        });
 
-        return { posts, total };
+        return { posts };
       },
       ['blog-list', String(page), String(limit)],
       { revalidate: 60 }
@@ -75,12 +65,10 @@ export default async function BlogPage({
     excerpt: string | null;
     thumbnail: string | null;
     createdAt: Date;
-    _count: { comments: number };
   }> = [];
-  let total = 0;
 
   try {
-    ({ posts, total } = await getBlogPageData());
+    ({ posts } = await getBlogPageData());
     posts = posts.map((post) => ({
       ...post,
       createdAt: post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt),
@@ -89,7 +77,6 @@ export default async function BlogPage({
     // Database unavailable - continue with empty posts
   }
 
-  const totalPages = Math.ceil(total / limit);
 
   // Helper to get post image (thumbnail or first image from content)
   const getPostImage = (post: { thumbnail: string | null }) => {
@@ -244,50 +231,6 @@ export default async function BlogPage({
                 })}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <nav className="flex justify-center items-center gap-4 mt-16" aria-label="Pagination">
-                  {page > 1 && (
-                    <Link
-                      href={`/blog?page=${page - 1}`}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-grey-300 text-grey-600 hover:border-red-primary hover:text-red-primary transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                      Previous
-                    </Link>
-                  )}
-
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                      <Link
-                        key={pageNum}
-                        href={`/blog?page=${pageNum}`}
-                        className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                          pageNum === page
-                            ? 'bg-red-primary text-pure-white'
-                            : 'text-grey-600 hover:text-rich-black hover:bg-grey-100'
-                        }`}
-                      >
-                        {pageNum}
-                      </Link>
-                    ))}
-                  </div>
-
-                  {page < totalPages && (
-                    <Link
-                      href={`/blog?page=${page + 1}`}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-grey-300 text-grey-600 hover:border-red-primary hover:text-red-primary transition-colors"
-                    >
-                      Next
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </Link>
-                  )}
-                </nav>
-              )}
             </>
           )}
         </div>
