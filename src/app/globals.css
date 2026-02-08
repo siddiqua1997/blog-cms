@@ -68,6 +68,11 @@ body {
   font-weight: 400;
 }
 
+body[data-nav-lock='true'] a {
+  pointer-events: none;
+  cursor: progress;
+}
+
 /* Editorial Typography - Oswald Headings + Roboto Body */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);

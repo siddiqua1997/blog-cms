@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Header from './components/Header';
+import NavigationGuard from './components/NavigationGuard';
 import Footer from './components/Footer';
 import { generateOrganizationJsonLd, generateWebsiteJsonLd } from '@/lib/seo';
 
@@ -72,6 +73,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-pure-black text-pure-white antialiased">
         {/* Fixed Header with Glassmorphism */}
         <Header />
+        <NavigationGuard />
 
         {/* Main Content */}
         <main className="flex-grow">
