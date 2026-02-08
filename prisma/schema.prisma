@@ -25,8 +25,6 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   sessions     Session[]
-
-  @@index([email])
 }
 
 // Session model - For session-based authentication
@@ -41,6 +39,7 @@ model Session {
 
   @@index([token])
   @@index([userId])
+  @@index([expiresAt])
 }
 
 // Post model - Core content entity for blog posts
@@ -68,7 +67,6 @@ model Post {
 
   // Indexes for common queries
   @@index([published, createdAt(sort: Desc)]) // For listing published posts
-  @@index([slug]) // For single post lookup
 }
 
 // PostImage model - Tracks images uploaded for posts
@@ -134,7 +132,5 @@ model Subscriber {
   id        String   @id @default(cuid())
   email     String   @unique // Ensures no duplicate subscriptions
   createdAt DateTime @default(now())
-
-  @@index([email])
   @@index([createdAt(sort: Desc)])
 }

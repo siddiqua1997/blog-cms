@@ -12,15 +12,18 @@ import { deleteContactMessage, markMessageAsRead } from '@/lib/actions';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminContactsPage() {
-  const messages = await prisma.contactMessage.findMany({
-    orderBy: [
-      { read: 'asc' },
-      { createdAt: 'desc' },
-    ],
-  });
-
-  const unreadCount = messages.filter((m) => !m.read).length;
-  const readCount = messages.filter((m) => m.read).length;
+  const listLimit = 200;
+  const [messages, unreadCount, readCount] = await Promise.all([
+    prisma.contactMessage.findMany({
+      orderBy: [
+        { read: 'asc' },
+        { createdAt: 'desc' },
+      ],
+      take: listLimit,
+    }),
+    prisma.contactMessage.count({ where: { read: false } }),
+    prisma.contactMessage.count({ where: { read: true } }),
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,6 +49,11 @@ export default async function AdminContactsPage() {
               <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
               {readCount} read
             </span>
+            {(unreadCount + readCount) > listLimit && (
+              <span className="text-sm text-gray-500 self-center">
+                showing latest {listLimit}
+              </span>
+            )}
           </div>
         </div>
       </header>

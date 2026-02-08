@@ -12,30 +12,33 @@ import { toggleCommentApproval, deleteComment } from '@/lib/actions';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminCommentsPage() {
-  const comments = await prisma.comment.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      content: true,
-      approved: true,
-      createdAt: true,
-      post: {
-        select: {
-          id: true,
-          title: true,
-          slug: true,
+  const listLimit = 200;
+  const [comments, pendingCount, approvedCount] = await Promise.all([
+    prisma.comment.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        content: true,
+        approved: true,
+        createdAt: true,
+        post: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
         },
       },
-    },
-    orderBy: [
-      { approved: 'asc' },
-      { createdAt: 'desc' },
-    ],
-  });
-
-  const pendingCount = comments.filter((c) => !c.approved).length;
-  const approvedCount = comments.filter((c) => c.approved).length;
+      orderBy: [
+        { approved: 'asc' },
+        { createdAt: 'desc' },
+      ],
+      take: listLimit,
+    }),
+    prisma.comment.count({ where: { approved: false } }),
+    prisma.comment.count({ where: { approved: true } }),
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -61,6 +64,11 @@ export default async function AdminCommentsPage() {
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               {approvedCount} approved
             </span>
+            {(pendingCount + approvedCount) > listLimit && (
+              <span className="text-sm text-gray-500 self-center">
+                showing latest {listLimit}
+              </span>
+            )}
           </div>
         </div>
       </header>

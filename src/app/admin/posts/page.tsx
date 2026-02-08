@@ -12,23 +12,28 @@ import { deletePost, togglePostPublished } from '@/lib/actions';
 export const dynamic = 'force-dynamic';
 
 export default async function AdminPostsPage() {
-  const posts = await prisma.post.findMany({
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      published: true,
-      createdAt: true,
-      updatedAt: true,
-      _count: {
-        select: {
-          images: true,
-          comments: true,
+  const listLimit = 200;
+  const [posts, totalPosts] = await Promise.all([
+    prisma.post.findMany({
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+          select: {
+            images: true,
+            comments: true,
+          },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      orderBy: { createdAt: 'desc' },
+      take: listLimit,
+    }),
+    prisma.post.count(),
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,7 +52,9 @@ export default async function AdminPostsPage() {
                 Back to Dashboard
               </Link>
               <h1 className="text-2xl font-bold text-gray-900">Manage Posts</h1>
-              <p className="text-gray-500 mt-1">{posts.length} total posts</p>
+              <p className="text-gray-500 mt-1">
+                {totalPosts} total posts{totalPosts > listLimit ? ` (showing latest ${listLimit})` : ''}
+              </p>
             </div>
             <Link
               href="/admin/posts/new"

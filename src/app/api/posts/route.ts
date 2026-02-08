@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '10')));
     const includeUnpublished = searchParams.get('includeUnpublished') === 'true';
+    const q = (searchParams.get('q') || '').trim();
 
     // If requesting unpublished posts, verify admin access
     if (includeUnpublished) {
@@ -61,7 +62,18 @@ export async function GET(request: NextRequest) {
     }
 
     const skip = (page - 1) * limit;
-    const where = includeUnpublished ? {} : { published: true };
+    const where: {
+      published?: boolean;
+      OR?: Array<{ title?: { contains: string; mode: 'insensitive' }; excerpt?: { contains: string; mode: 'insensitive' }; content?: { contains: string; mode: 'insensitive' } }>;
+    } = includeUnpublished ? {} : { published: true };
+
+    if (q.length >= 2) {
+      where.OR = [
+        { title: { contains: q, mode: 'insensitive' } },
+        { excerpt: { contains: q, mode: 'insensitive' } },
+        { content: { contains: q, mode: 'insensitive' } },
+      ];
+    }
 
     // Execute queries in parallel for better performance
     const [posts, total] = await Promise.all([

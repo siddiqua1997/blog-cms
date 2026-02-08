@@ -72,6 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let blogPosts: MetadataRoute.Sitemap = [];
 
   try {
+    const sitemapLimit = 5000;
     const posts = await prisma.post.findMany({
       where: { published: true },
       select: {
@@ -80,6 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
+      take: sitemapLimit,
     });
 
     blogPosts = posts.map((post) => ({
