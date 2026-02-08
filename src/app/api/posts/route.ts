@@ -12,6 +12,14 @@ import {
 } from '@/lib/apiResponse';
 import { handleError, validateRequired } from '@/lib/errorHandler';
 
+type CacheEntry = {
+  timestamp: number;
+  payload: ReturnType<typeof apiSuccess>;
+};
+
+const CACHE_TTL_MS = 60_000;
+const responseCache = new Map<string, CacheEntry>();
+
 /**
  * Posts API Route
  *
@@ -62,16 +70,23 @@ export async function GET(request: NextRequest) {
     }
 
     const skip = (page - 1) * limit;
+    const cacheKey = `${page}:${limit}:${q || 'all'}`;
+
+    if (!includeUnpublished) {
+      const cached = responseCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+        return cached.payload;
+      }
+    }
     const where: {
       published?: boolean;
-      OR?: Array<{ title?: { contains: string; mode: 'insensitive' }; excerpt?: { contains: string; mode: 'insensitive' }; content?: { contains: string; mode: 'insensitive' } }>;
+      OR?: Array<{ title?: { contains: string; mode: 'insensitive' }; excerpt?: { contains: string; mode: 'insensitive' } }>;
     } = includeUnpublished ? {} : { published: true };
 
     if (q.length >= 2) {
       where.OR = [
         { title: { contains: q, mode: 'insensitive' } },
         { excerpt: { contains: q, mode: 'insensitive' } },
-        { content: { contains: q, mode: 'insensitive' } },
       ];
     }
 
@@ -101,10 +116,15 @@ export async function GET(request: NextRequest) {
 
     const pagination = calculatePagination(page, limit, total);
 
-    return apiSuccess({
+    const response = apiSuccess({
       posts,
       pagination,
     });
+    if (!includeUnpublished) {
+      responseCache.set(cacheKey, { timestamp: Date.now(), payload: response });
+    }
+
+    return response;
   } catch (error) {
     return handleError(error, 'posts:list');
   }
