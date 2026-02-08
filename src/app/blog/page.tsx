@@ -151,6 +151,14 @@ export default async function BlogPage({
             >
               Search
             </button>
+            {q.length > 0 && (
+              <Link
+                href="/blog"
+                className="inline-flex items-center justify-center px-4 py-3 rounded-xl border border-grey-700 text-grey-200 hover:text-pure-white hover:border-grey-500 transition-colors"
+              >
+                Clear
+              </Link>
+            )}
           </form>
         </div>
       </section>
@@ -165,8 +173,14 @@ export default async function BlogPage({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-rich-black mb-3">No posts yet</h2>
-              <p className="text-grey-600 mb-8">Check back soon for performance insights and build showcases!</p>
+              <h2 className="text-2xl font-semibold text-rich-black mb-3">
+                {q.length > 0 ? `No results for \"${q}\"` : 'No posts yet'}
+              </h2>
+              <p className="text-grey-600 mb-8">
+                {q.length > 0
+                  ? 'Try a different search term or clear the search.'
+                  : 'Check back soon for performance insights and build showcases!'}
+              </p>
               <Link href="/" className="btn-secondary-dark">
                 Back to Home
               </Link>
