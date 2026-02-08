@@ -64,7 +64,7 @@ export default async function BlogPage({
 
         return { posts, total };
       },
-      ['blog-list', String(page), q || 'all', String(limit)],
+      ['blog-list', String(page), String(limit)],
       { revalidate: 60 }
     )();
 
