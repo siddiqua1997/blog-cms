@@ -23,7 +23,7 @@ export const metadata: Metadata = generateBlogListMetadata();
 export const revalidate = 60;
 export const dynamic = 'force-dynamic';
 
-type SearchParams = Promise<{ page?: string }>;
+type SearchParams = Promise<{ page?: string; q?: string }>;
 
 export default async function BlogPage({
   searchParams,
@@ -32,6 +32,7 @@ export default async function BlogPage({
 }) {
   const params = await searchParams;
   const page = Math.max(1, parseInt(params.page || '1'));
+  const q = (params.q || '').trim();
   const limit = 9;
   const skip = (page - 1) * limit;
 
@@ -52,7 +53,18 @@ export default async function BlogPage({
   try {
     [posts, total] = await Promise.all([
       prisma.post.findMany({
-        where: { published: true },
+        where: {
+          published: true,
+          ...(q.length >= 2
+            ? {
+                OR: [
+                  { title: { contains: q, mode: 'insensitive' } },
+                  { excerpt: { contains: q, mode: 'insensitive' } },
+                  { content: { contains: q, mode: 'insensitive' } },
+                ],
+              }
+            : {}),
+        },
         select: {
           id: true,
           title: true,
@@ -69,7 +81,20 @@ export default async function BlogPage({
         skip,
         take: limit,
       }),
-      prisma.post.count({ where: { published: true } }),
+      prisma.post.count({
+        where: {
+          published: true,
+          ...(q.length >= 2
+            ? {
+                OR: [
+                  { title: { contains: q, mode: 'insensitive' } },
+                  { excerpt: { contains: q, mode: 'insensitive' } },
+                  { content: { contains: q, mode: 'insensitive' } },
+                ],
+              }
+            : {}),
+        },
+      }),
     ]);
   } catch {
     // Database unavailable - continue with empty posts
@@ -111,6 +136,22 @@ export default async function BlogPage({
             Performance tuning insights, build showcases, and technical guides
             from our team of specialists.
           </p>
+
+          <form action="/blog" method="get" className="mt-8 flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
+            <input
+              type="text"
+              name="q"
+              defaultValue={q}
+              placeholder="Search posts..."
+              className="w-full px-4 py-3 rounded-xl border border-grey-800 bg-pure-black/40 text-pure-white placeholder:text-grey-500 focus:outline-none focus:ring-2 focus:ring-red-primary/50 focus:border-red-primary"
+            />
+            <button
+              type="submit"
+              className="btn-primary whitespace-nowrap"
+            >
+              Search
+            </button>
+          </form>
         </div>
       </section>
 
