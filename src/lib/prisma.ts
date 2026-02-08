@@ -23,7 +23,7 @@ const globalForPrisma = globalThis as unknown as {
 
 // Create Prisma client with environment-appropriate settings
 function createPrismaClient(): PrismaClient {
-  return new PrismaClient({
+  const client = new PrismaClient({
     // Production: Only log errors to reduce noise
     // Development: Log queries for debugging
     log:
@@ -33,6 +33,30 @@ function createPrismaClient(): PrismaClient {
     // Customize error formatting
     errorFormat: process.env.NODE_ENV === 'production' ? 'minimal' : 'pretty',
   });
+
+  // Log slow queries with structured output
+  const slowMs = parseInt(process.env.PRISMA_SLOW_QUERY_MS || '200', 10);
+  client.$use(async (params, next) => {
+    const start = Date.now();
+    try {
+      const result = await next(params);
+      const duration = Date.now() - start;
+      if (duration >= slowMs) {
+        console.warn(JSON.stringify({
+          level: 'warn',
+          msg: 'slow_prisma_query',
+          model: params.model,
+          action: params.action,
+          durationMs: duration,
+        }));
+      }
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  });
+
+  return client;
 }
 
 // Use existing instance or create new one
