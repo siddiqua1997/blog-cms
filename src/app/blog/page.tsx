@@ -60,7 +60,6 @@ export default async function BlogPage({
                 OR: [
                   { title: { contains: q, mode: 'insensitive' } },
                   { excerpt: { contains: q, mode: 'insensitive' } },
-                  { content: { contains: q, mode: 'insensitive' } },
                 ],
               }
             : {}),
@@ -89,7 +88,6 @@ export default async function BlogPage({
                 OR: [
                   { title: { contains: q, mode: 'insensitive' } },
                   { excerpt: { contains: q, mode: 'insensitive' } },
-                  { content: { contains: q, mode: 'insensitive' } },
                 ],
               }
             : {}),
