@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 /**
  * Prevents rapid double-click navigation by locking clicks briefly.
@@ -10,7 +10,6 @@ export default function NavigationGuard() {
   const lockRef = useRef(false);
   const timerRef = useRef<number | null>(null);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     const clearLock = () => {
@@ -60,7 +59,7 @@ export default function NavigationGuard() {
       timerRef.current = null;
     }
     document.body.removeAttribute('data-nav-lock');
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   return null;
 }
