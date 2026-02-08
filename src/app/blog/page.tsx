@@ -3,9 +3,10 @@ import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import { unstable_cache } from 'next/cache';
 import { generateBlogListMetadata } from '@/lib/seo';
-import { extractFirstImage } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
 import type { Metadata } from 'next';
+import SearchForm from './SearchForm';
+import BlogSearchResults from './BlogSearchResults';
 
 /**
  * Blog Listing Page
@@ -23,16 +24,11 @@ export const metadata: Metadata = generateBlogListMetadata();
 // ISR: Revalidate every 60 seconds
 export const revalidate = 60;
 
-type SearchParams = Promise<{ page?: string; q?: string }>;
-
 export default async function BlogPage({
-  searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: { q?: string };
 }) {
-  const params = await searchParams;
-  const page = Math.max(1, parseInt(params.page || '1'));
-  const q = (params.q || '').trim();
+  const page = 1;
   const limit = 9;
   const skip = (page - 1) * limit;
 
@@ -43,14 +39,7 @@ export default async function BlogPage({
           prisma.post.findMany({
             where: {
               published: true,
-              ...(q.length >= 2
-                ? {
-                    OR: [
-                      { title: { contains: q, mode: 'insensitive' } },
-                      { excerpt: { contains: q, mode: 'insensitive' } },
-                    ],
-                  }
-                : {}),
+              published: true,
             },
             select: {
               id: true,
@@ -70,14 +59,6 @@ export default async function BlogPage({
           prisma.post.count({
             where: {
               published: true,
-              ...(q.length >= 2
-                ? {
-                    OR: [
-                      { title: { contains: q, mode: 'insensitive' } },
-                      { excerpt: { contains: q, mode: 'insensitive' } },
-                    ],
-                  }
-                : {}),
             },
           }),
         ]);
@@ -145,34 +126,13 @@ export default async function BlogPage({
             from our team of specialists.
           </p>
 
-          <form action="/blog" method="get" className="mt-8 flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
-            <input
-              type="text"
-              name="q"
-              defaultValue={q}
-              placeholder="Search posts..."
-              className="w-full px-4 py-3 rounded-xl border border-grey-800 bg-pure-black/40 text-pure-white placeholder:text-grey-500 focus:outline-none focus:ring-2 focus:ring-red-primary/50 focus:border-red-primary"
-            />
-            <button
-              type="submit"
-              className="btn-primary whitespace-nowrap"
-            >
-              Search
-            </button>
-            {q.length > 0 && (
-              <Link
-                href="/blog"
-                className="inline-flex items-center justify-center px-4 py-3 rounded-xl border border-grey-700 text-grey-200 hover:text-pure-white hover:border-grey-500 transition-colors"
-              >
-                Clear
-              </Link>
-            )}
-          </form>
+          <SearchForm />
         </div>
       </section>
 
       {/* Posts Grid - WHITE */}
       <section className="section-padding section-light">
+        <BlogSearchResults />
         <div className="section-container">
           {posts.length === 0 ? (
             <div className="text-center py-20">
@@ -181,14 +141,8 @@ export default async function BlogPage({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-rich-black mb-3">
-                {q.length > 0 ? `No results for \"${q}\"` : 'No posts yet'}
-              </h2>
-              <p className="text-grey-600 mb-8">
-                {q.length > 0
-                  ? 'Try a different search term or clear the search.'
-                  : 'Check back soon for performance insights and build showcases!'}
-              </p>
+              <h2 className="text-2xl font-semibold text-rich-black mb-3">No posts yet</h2>
+              <p className="text-grey-600 mb-8">Check back soon for performance insights and build showcases!</p>
               <Link href="/" className="btn-secondary-dark">
                 Back to Home
               </Link>
