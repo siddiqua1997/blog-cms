@@ -39,7 +39,6 @@ export default async function BlogPage({
           prisma.post.findMany({
             where: {
               published: true,
-              published: true,
             },
             select: {
               id: true,
