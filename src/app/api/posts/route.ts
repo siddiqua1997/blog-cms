@@ -17,7 +17,7 @@ type CacheEntry = {
   payload: ReturnType<typeof apiSuccess>;
 };
 
-const CACHE_TTL_MS = 60_000;
+const CACHE_TTL_MS = 600_000;
 const responseCache = new Map<string, CacheEntry>();
 
 /**

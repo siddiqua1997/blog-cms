@@ -7,6 +7,7 @@ import { generatePostMetadata, generateArticleJsonLd, generateBreadcrumbJsonLd }
 import type { Metadata } from 'next';
 import CommentForm from './CommentForm';
 import RelatedPosts from './RelatedPosts';
+import CommentsSection from './CommentsSection';
 
 /**
  * Single Post Page
@@ -22,8 +23,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-// ISR: Revalidate every 300 seconds for fresh content
-export const revalidate = 300;
+// ISR: Revalidate every 600 seconds for fresh content
+export const revalidate = 600;
 
 // Generate static params - return empty to use on-demand generation
 // With force-dynamic, pages are rendered at request time anyway
@@ -51,7 +52,7 @@ const getPostMeta = async (slug: string) =>
         },
       }),
     ['post-meta', slug],
-    { revalidate: 300 }
+    { revalidate: 600 }
   )();
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -86,41 +87,21 @@ export default async function PostPage({ params }: PageProps) {
   const { slug } = await params;
 
   // Server component: Direct DB access, no API fetch needed
-  let post:
-    | (Awaited<
-        ReturnType<typeof prisma.post.findUnique>
-      > & { comments: Array<{ id: string; name: string; content: string; createdAt: Date }> })
-    | null = null;
+  let post: Awaited<ReturnType<typeof prisma.post.findUnique>> | null = null;
 
   try {
     post = await unstable_cache(
       async () =>
         prisma.post.findUnique({
           where: { slug },
-          include: {
-            comments: {
-              where: { approved: true },
-              select: {
-                id: true,
-                name: true,
-                content: true,
-                createdAt: true,
-              },
-              orderBy: { createdAt: 'asc' },
-            },
-          },
         }),
       ['post', slug],
-      { revalidate: 300 }
+      { revalidate: 600 }
     )();
 
     if (post) {
       post.createdAt = post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt);
       post.updatedAt = post.updatedAt instanceof Date ? post.updatedAt : new Date(post.updatedAt);
-      post.comments = post.comments.map((comment) => ({
-        ...comment,
-        createdAt: comment.createdAt instanceof Date ? comment.createdAt : new Date(comment.createdAt),
-      }));
     }
   } catch (error) {
     console.warn('Database unavailable - blog post cannot be loaded', error);
@@ -221,8 +202,6 @@ export default async function PostPage({ params }: PageProps) {
                   </span>
                 </>
               )}
-              <span className="w-1 h-1 rounded-full bg-grey-600" />
-              <span>{post.comments.length} comments</span>
             </div>
           </div>
         </div>
@@ -289,45 +268,7 @@ export default async function PostPage({ params }: PageProps) {
       <section className="section-padding bg-off-white">
         <div className="section-container">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold text-rich-black mb-10">
-              Comments <span className="text-red-primary">({post.comments.length})</span>
-            </h2>
-
-            {/* Existing Comments */}
-            {post.comments.length === 0 ? (
-              <p className="text-grey-600 mb-12">
-                No comments yet. Be the first to share your thoughts!
-              </p>
-            ) : (
-              <div className="space-y-6 mb-12">
-                {post.comments.map((comment) => (
-                  <div
-                    key={comment.id}
-                    className="rounded-2xl p-6 bg-pure-white border border-grey-200 shadow-sm"
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      {/* Avatar placeholder */}
-                      <div className="w-10 h-10 rounded-full bg-grey-100 flex items-center justify-center">
-                        <span className="text-grey-700 font-semibold text-sm">
-                          {comment.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-rich-black">{comment.name}</p>
-                        <time className="text-sm text-grey-500">
-                          {comment.createdAt.toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </time>
-                      </div>
-                    </div>
-                    <p className="text-grey-700 leading-relaxed">{comment.content}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+            <CommentsSection postId={post.id} />
 
             {/* Comment Form */}
             <div className="rounded-2xl p-6 md:p-8 bg-pure-white border border-grey-200 shadow-sm">
