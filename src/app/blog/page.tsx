@@ -21,13 +21,10 @@ import BlogSearchResults from './BlogSearchResults';
 // Use SEO utility for consistent metadata
 export const metadata: Metadata = generateBlogListMetadata();
 
-// ISR: Revalidate every 60 seconds
-export const revalidate = 60;
+// ISR: Revalidate every 300 seconds
+export const revalidate = 300;
 
-export default async function BlogPage({
-}: {
-  searchParams: { q?: string };
-}) {
+export default async function BlogPage() {
   const page = 1;
   const limit = 9;
   const skip = (page - 1) * limit;
@@ -55,7 +52,7 @@ export default async function BlogPage({
         return { posts };
       },
       ['blog-list', String(page), String(limit)],
-      { revalidate: 60 }
+      { revalidate: 300 }
     )();
 
   let posts: Array<{
@@ -193,12 +190,6 @@ export default async function BlogPage({
                               day: 'numeric',
                             })}
                           </time>
-                          {post._count.comments > 0 && (
-                            <>
-                              <span className="w-1 h-1 rounded-full bg-grey-400" />
-                              <span>{post._count.comments} comments</span>
-                            </>
-                          )}
                         </div>
 
                         {/* Title */}

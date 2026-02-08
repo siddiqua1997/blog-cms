@@ -22,8 +22,8 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-// ISR: Revalidate every 60 seconds for fresh content
-export const revalidate = 60;
+// ISR: Revalidate every 300 seconds for fresh content
+export const revalidate = 300;
 
 // Generate static params - return empty to use on-demand generation
 // With force-dynamic, pages are rendered at request time anyway
@@ -51,7 +51,7 @@ const getPostMeta = async (slug: string) =>
         },
       }),
     ['post-meta', slug],
-    { revalidate: 60 }
+    { revalidate: 300 }
   )();
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -111,7 +111,7 @@ export default async function PostPage({ params }: PageProps) {
           },
         }),
       ['post', slug],
-      { revalidate: 60 }
+      { revalidate: 300 }
     )();
 
     if (post) {

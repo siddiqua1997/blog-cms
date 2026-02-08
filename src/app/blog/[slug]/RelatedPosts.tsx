@@ -45,7 +45,7 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
           take: 3,
         }),
       ['related-posts', currentSlug],
-      { revalidate: 120 }
+      { revalidate: 300 }
     )();
 
     posts = posts.map((post) => ({

@@ -90,29 +90,29 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // Execute queries in parallel for better performance
-    const [posts, total] = await Promise.all([
-      prisma.post.findMany({
-        where,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          published: true,
-          createdAt: true,
-          updatedAt: true,
-          thumbnail: true,
-          _count: {
-            select: { images: true, comments: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.post.count({ where }),
-    ]);
+    const posts = await prisma.post.findMany({
+      where,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        excerpt: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+        thumbnail: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
+    });
+
+    const hasNext = posts.length === limit;
+    const total = includeUnpublished
+      ? await prisma.post.count({ where })
+      : hasNext
+        ? page * limit + 1
+        : skip + posts.length;
 
     const pagination = calculatePagination(page, limit, total);
 
