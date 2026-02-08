@@ -1,0 +1,5 @@
+/blog
+  Cache-Control: public, s-maxage=600, stale-while-revalidate=86400
+
+/blog/*
+  Cache-Control: public, s-maxage=600, stale-while-revalidate=86400
