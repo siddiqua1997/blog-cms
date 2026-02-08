@@ -50,6 +50,11 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
       ['related-posts', currentSlug],
       { revalidate: 120 }
     )();
+
+    posts = posts.map((post) => ({
+      ...post,
+      createdAt: post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt),
+    }));
   } catch {
     return null;
   }

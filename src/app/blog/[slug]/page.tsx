@@ -75,8 +75,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       seoTitle: post.seoTitle,
       seoDesc: post.seoDesc,
       seoImage: post.seoImage,
-      publishedAt: post.createdAt,
-      updatedAt: post.updatedAt,
+      publishedAt: post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt),
+      updatedAt: post.updatedAt instanceof Date ? post.updatedAt : new Date(post.updatedAt),
     });
   } catch {
     return { title: 'Blog Post | Toxic Tuning' };
@@ -114,6 +114,15 @@ export default async function PostPage({ params }: PageProps) {
       ['post', slug],
       { revalidate: 60 }
     )();
+
+    if (post) {
+      post.createdAt = post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt);
+      post.updatedAt = post.updatedAt instanceof Date ? post.updatedAt : new Date(post.updatedAt);
+      post.comments = post.comments.map((comment) => ({
+        ...comment,
+        createdAt: comment.createdAt instanceof Date ? comment.createdAt : new Date(comment.createdAt),
+      }));
+    }
   } catch (error) {
     console.warn('Database unavailable - blog post cannot be loaded', error);
     return notFound();

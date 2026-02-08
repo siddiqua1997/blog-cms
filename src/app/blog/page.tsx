@@ -104,6 +104,10 @@ export default async function BlogPage({
 
   try {
     ({ posts, total } = await getBlogPageData());
+    posts = posts.map((post) => ({
+      ...post,
+      createdAt: post.createdAt instanceof Date ? post.createdAt : new Date(post.createdAt),
+    }));
   } catch {
     // Database unavailable - continue with empty posts
   }
