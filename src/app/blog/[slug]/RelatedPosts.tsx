@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import prisma from '@/lib/prisma';
+import { unstable_cache } from 'next/cache';
 import { extractFirstImage } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
 
@@ -27,23 +28,28 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
   }> = [];
 
   try {
-    posts = await prisma.post.findMany({
-      where: {
-        published: true,
-        slug: { not: currentSlug },
-      },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        content: true,
-        thumbnail: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 3,
-    });
+    posts = await unstable_cache(
+      async () =>
+        prisma.post.findMany({
+          where: {
+            published: true,
+            slug: { not: currentSlug },
+          },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            excerpt: true,
+            content: true,
+            thumbnail: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 3,
+        }),
+      ['related-posts', currentSlug],
+      { revalidate: 120 }
+    )();
   } catch {
     return null;
   }

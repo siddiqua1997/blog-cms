@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import prisma from '@/lib/prisma';
+import { unstable_cache } from 'next/cache';
 import { generateBlogListMetadata } from '@/lib/seo';
 import { extractFirstImage } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
@@ -36,8 +37,59 @@ export default async function BlogPage({
   const limit = 9;
   const skip = (page - 1) * limit;
 
-  // Server component: Direct DB access
-  // Handles database unavailability gracefully
+  const getBlogPageData = async () =>
+    unstable_cache(
+      async () => {
+        const [posts, total] = await Promise.all([
+          prisma.post.findMany({
+            where: {
+              published: true,
+              ...(q.length >= 2
+                ? {
+                    OR: [
+                      { title: { contains: q, mode: 'insensitive' } },
+                      { excerpt: { contains: q, mode: 'insensitive' } },
+                    ],
+                  }
+                : {}),
+            },
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+              excerpt: true,
+              content: true,
+              thumbnail: true,
+              createdAt: true,
+              _count: {
+                select: { comments: true },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+            skip,
+            take: limit,
+          }),
+          prisma.post.count({
+            where: {
+              published: true,
+              ...(q.length >= 2
+                ? {
+                    OR: [
+                      { title: { contains: q, mode: 'insensitive' } },
+                      { excerpt: { contains: q, mode: 'insensitive' } },
+                    ],
+                  }
+                : {}),
+            },
+          }),
+        ]);
+
+        return { posts, total };
+      },
+      ['blog-list', String(page), q || 'all', String(limit)],
+      { revalidate: 60 }
+    )();
+
   let posts: Array<{
     id: string;
     title: string;
@@ -51,49 +103,7 @@ export default async function BlogPage({
   let total = 0;
 
   try {
-    [posts, total] = await Promise.all([
-      prisma.post.findMany({
-        where: {
-          published: true,
-          ...(q.length >= 2
-            ? {
-                OR: [
-                  { title: { contains: q, mode: 'insensitive' } },
-                  { excerpt: { contains: q, mode: 'insensitive' } },
-                ],
-              }
-            : {}),
-        },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          content: true,
-          thumbnail: true,
-          createdAt: true,
-          _count: {
-            select: { comments: true },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.post.count({
-        where: {
-          published: true,
-          ...(q.length >= 2
-            ? {
-                OR: [
-                  { title: { contains: q, mode: 'insensitive' } },
-                  { excerpt: { contains: q, mode: 'insensitive' } },
-                ],
-              }
-            : {}),
-        },
-      }),
-    ]);
+    ({ posts, total } = await getBlogPageData());
   } catch {
     // Database unavailable - continue with empty posts
   }

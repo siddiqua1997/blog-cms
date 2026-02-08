@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
 import { markdownToHtml } from '@/lib/markdown';
+import { unstable_cache } from 'next/cache';
 import { generatePostMetadata, generateArticleJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo';
 import type { Metadata } from 'next';
 import CommentForm from './CommentForm';
@@ -32,25 +33,33 @@ export async function generateStaticParams() {
 }
 
 // Generate SEO metadata with smart fallbacks
+const getPostMeta = async (slug: string) =>
+  unstable_cache(
+    async () =>
+      prisma.post.findUnique({
+        where: { slug },
+        select: {
+          title: true,
+          slug: true,
+          content: true,
+          excerpt: true,
+          thumbnail: true,
+          seoTitle: true,
+          seoDesc: true,
+          seoImage: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+    ['post-meta', slug],
+    { revalidate: 60 }
+  )();
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
 
-    const post = await prisma.post.findUnique({
-      where: { slug },
-      select: {
-        title: true,
-        slug: true,
-        content: true,
-        excerpt: true,
-        thumbnail: true,
-        seoTitle: true,
-        seoDesc: true,
-        seoImage: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const post = await getPostMeta(slug);
 
     if (!post) {
       return { title: 'Post Not Found' };
@@ -85,21 +94,26 @@ export default async function PostPage({ params }: PageProps) {
     | null = null;
 
   try {
-    post = await prisma.post.findUnique({
-      where: { slug },
-      include: {
-        comments: {
-          where: { approved: true },
-          select: {
-            id: true,
-            name: true,
-            content: true,
-            createdAt: true,
+    post = await unstable_cache(
+      async () =>
+        prisma.post.findUnique({
+          where: { slug },
+          include: {
+            comments: {
+              where: { approved: true },
+              select: {
+                id: true,
+                name: true,
+                content: true,
+                createdAt: true,
+              },
+              orderBy: { createdAt: 'asc' },
+            },
           },
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
+        }),
+      ['post', slug],
+      { revalidate: 60 }
+    )();
   } catch (error) {
     console.warn('Database unavailable - blog post cannot be loaded', error);
     return notFound();
