@@ -82,6 +82,15 @@
   [headers.values]
     Cache-Control = "no-store, must-revalidate"
 
+# Edge function to force cache headers on blog routes
+[[edge_functions]]
+  path = "/blog"
+  function = "cache-blog"
+
+[[edge_functions]]
+  path = "/blog/*"
+  function = "cache-blog"
+
 # Redirects (optional - add custom redirects here)
 # [[redirects]]
 #   from = "/old-blog/*"
