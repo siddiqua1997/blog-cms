@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAdminResponse } from '@/lib/authz';
 import { generateExcerpt, extractImageUrls } from '@/lib/markdown';
+import { revalidatePath } from 'next/cache';
+import { appCache } from '@/lib/lru';
 
 /**
  * Admin Post API Routes
@@ -63,6 +65,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
  * Update a post by ID
  */
 export async function PATCH(request: NextRequest, context: RouteContext) {
+  let existing: { id: string; slug: string } | null = null;
+  let shouldRevalidate = false;
   try {
     const auth = await requireAdminResponse();
     if (auth.error) {
@@ -74,9 +78,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     const { title, content, published } = body;
 
     // Check post exists
-    const existing = await prisma.post.findUnique({
+    existing = await prisma.post.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, slug: true },
     });
 
     if (!existing) {
@@ -134,6 +138,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return updated;
     });
 
+    shouldRevalidate = true;
     return NextResponse.json({
       post,
       message: 'Post updated successfully',
@@ -144,6 +149,24 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       { error: 'Failed to update post' },
       { status: 500 }
     );
+  } finally {
+    if (shouldRevalidate) {
+      try {
+      // Clear caches and revalidate pages
+      appCache.delete('blog-list:1:9');
+      appCache.delete('blog-list:1:10');
+      appCache.delete('blog-list:1:12');
+      if (existing?.slug) {
+        appCache.delete(`post:${existing.slug}`);
+        appCache.delete(`post-meta:${existing.slug}`);
+        appCache.delete(`related-posts:${existing.slug}`);
+        revalidatePath(`/blog/${existing.slug}`);
+      }
+      revalidatePath('/blog');
+      } catch {
+        // no-op
+      }
+    }
   }
 }
 
@@ -165,7 +188,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     // Check post exists
     const existing = await prisma.post.findUnique({
       where: { id },
-      select: { id: true },
+      select: { id: true, slug: true },
     });
 
     if (!existing) {
@@ -179,6 +202,18 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     await prisma.post.delete({
       where: { id },
     });
+
+    // Clear caches and revalidate list and post page
+    appCache.delete('blog-list:1:9');
+    appCache.delete('blog-list:1:10');
+    appCache.delete('blog-list:1:12');
+    if (existing?.slug) {
+      appCache.delete(`post:${existing.slug}`);
+      appCache.delete(`post-meta:${existing.slug}`);
+      appCache.delete(`related-posts:${existing.slug}`);
+      revalidatePath(`/blog/${existing.slug}`);
+    }
+    revalidatePath('/blog');
 
     return NextResponse.json({
       message: 'Post deleted successfully',

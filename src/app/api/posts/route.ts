@@ -8,9 +8,10 @@ import {
   apiSuccess,
   apiError,
   errors,
-  calculatePagination,
 } from '@/lib/apiResponse';
 import { handleError, validateRequired } from '@/lib/errorHandler';
+import { appCache } from '@/lib/lru';
+import { revalidatePath } from 'next/cache';
 
 type CacheEntry = {
   timestamp: number;
@@ -107,18 +108,8 @@ export async function GET(request: NextRequest) {
       take: limit,
     });
 
-    const hasNext = posts.length === limit;
-    const total = includeUnpublished
-      ? await prisma.post.count({ where })
-      : hasNext
-        ? page * limit + 1
-        : skip + posts.length;
-
-    const pagination = calculatePagination(page, limit, total);
-
     const response = apiSuccess({
       posts,
-      pagination,
     });
     if (!includeUnpublished) {
       responseCache.set(cacheKey, { timestamp: Date.now(), payload: response });
@@ -238,6 +229,17 @@ export async function POST(request: NextRequest) {
 
       return newPost;
     });
+
+    // Invalidate blog caches so new posts appear immediately
+    appCache.delete('blog-list:1:9');
+    appCache.delete('blog-list:1:10');
+    appCache.delete('blog-list:1:12');
+    responseCache.clear();
+
+    if (published) {
+      revalidatePath('/blog');
+      revalidatePath(`/blog/${slug}`);
+    }
 
     return apiSuccess(
       {

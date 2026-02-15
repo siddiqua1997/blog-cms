@@ -7,6 +7,8 @@ import { rateLimitMiddleware, rateLimitPresets } from '@/lib/rateLimit';
 import { apiSuccess, errors } from '@/lib/apiResponse';
 import { handleError } from '@/lib/errorHandler';
 import { getEnv } from '@/lib/env';
+import { revalidatePath } from 'next/cache';
+import { appCache } from '@/lib/lru';
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -206,6 +208,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       return post;
     });
 
+    // Clear caches and revalidate
+    appCache.delete('blog-list:1:9');
+    appCache.delete('blog-list:1:10');
+    appCache.delete('blog-list:1:12');
+    appCache.delete(`post:${slug}`);
+    appCache.delete(`post-meta:${slug}`);
+    appCache.delete(`related-posts:${slug}`);
+    revalidatePath('/blog');
+    revalidatePath(`/blog/${slug}`);
+
     return apiSuccess({
       post: updatedPost,
       message: 'Post updated successfully',
@@ -276,6 +288,16 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
     await prisma.post.delete({
       where: { slug },
     });
+
+    // Clear caches and revalidate
+    appCache.delete('blog-list:1:9');
+    appCache.delete('blog-list:1:10');
+    appCache.delete('blog-list:1:12');
+    appCache.delete(`post:${slug}`);
+    appCache.delete(`post-meta:${slug}`);
+    appCache.delete(`related-posts:${slug}`);
+    revalidatePath('/blog');
+    revalidatePath(`/blog/${slug}`);
 
     return apiSuccess({
       deleted: true,
