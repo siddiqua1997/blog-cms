@@ -43,18 +43,23 @@ export function generateSessionToken(): string {
   return crypto.randomBytes(32).toString('hex');
 }
 
+function hashSessionToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
 /**
  * Create a new session for a user
  */
 export async function createSession(userId: string): Promise<string> {
   const token = generateSessionToken();
+  const tokenHash = hashSessionToken(token);
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + SESSION_DURATION_DAYS);
 
   await prisma.session.create({
     data: {
       userId,
-      token,
+      token: tokenHash,
       expiresAt,
     },
   });
@@ -83,8 +88,9 @@ export async function getSession() {
     return null;
   }
 
+  const tokenHash = hashSessionToken(token);
   const session = await prisma.session.findUnique({
-    where: { token },
+    where: { token: tokenHash },
     include: { user: true },
   });
 
@@ -140,7 +146,8 @@ export async function logout(): Promise<void> {
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
   if (token) {
-    await prisma.session.deleteMany({ where: { token } });
+    const tokenHash = hashSessionToken(token);
+    await prisma.session.deleteMany({ where: { token: tokenHash } });
   }
 
   cookieStore.delete(SESSION_COOKIE_NAME);

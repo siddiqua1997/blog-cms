@@ -1,5 +1,7 @@
 import { remark } from 'remark';
-import html from 'remark-html';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 
 /**
  * Markdown processing utilities for blog content
@@ -19,10 +21,21 @@ import html from 'remark-html';
  * const html = await markdownToHtml("# Hello\n\n![image](https://example.com/img.jpg)")
  */
 export async function markdownToHtml(markdown: string): Promise<string> {
+  const schema = {
+    ...defaultSchema,
+    attributes: {
+      ...defaultSchema.attributes,
+      a: ['href', 'title', 'target', 'rel'],
+      img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
+      code: ['className'],
+      pre: ['className'],
+    },
+  };
+
   const result = await remark()
-    .use(html, {
-      sanitize: false, // We trust our own content; enable if user-generated
-    })
+    .use(remarkRehype)
+    .use(rehypeSanitize, schema)
+    .use(rehypeStringify)
     .process(markdown);
 
   return result.toString();
