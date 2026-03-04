@@ -48,8 +48,15 @@ export default function Header() {
 
   // Lock body scroll when menu is open
   useEffect(() => {
-    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (isMobileMenuOpen) {
+      document.body.dataset.menuOpen = 'true';
+    } else {
+      delete document.body.dataset.menuOpen;
+    }
+
+    return () => {
+      delete document.body.dataset.menuOpen;
+    };
   }, [isMobileMenuOpen]);
 
   // Don't render on admin pages
@@ -79,12 +86,10 @@ export default function Header() {
                 role="img"
                 xmlSpace="preserve"
                 className="h-6 w-autoh-7 w-auto lg:h-9"
-                style={{
-                  shapeRendering: "geometricPrecision",
-                  textRendering: "geometricPrecision",
-                  fillRule: "evenodd",
-                  clipRule: "evenodd",
-                }}
+                shapeRendering="geometricPrecision"
+                textRendering="geometricPrecision"
+                fillRule="evenodd"
+                clipRule="evenodd"
               >
                 <defs>
                   <style>
@@ -179,15 +184,11 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-3xl font-semibold text-pure-white py-4 border-b border-grey-800/50 transition-all duration-500 hover:text-[#ED3237] hover:pl-4 uppercase tracking-wide ${
+                className={`text-3xl font-semibold text-pure-white py-4 border-b border-grey-800/50 transition-all duration-500 hover:text-[#ED3237] hover:pl-4 uppercase tracking-wide font-heading transition-delay-${index * 75} ${
                   isMobileMenuOpen
                     ? 'opacity-100 translate-x-0'
                     : 'opacity-0 -translate-x-8'
                 }`}
-                style={{
-                  transitionDelay: `${index * 75}ms`,
-                  fontFamily: "'Oswald', sans-serif"
-                }}
               >
                 {link.label}
               </Link>
@@ -198,23 +199,21 @@ export default function Header() {
             <Link
               href="/admin"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`btn-primary w-full justify-center transition-all duration-500 ${
+              className={`btn-primary w-full justify-center transition-all duration-500 transition-delay-400 ${
                 isMobileMenuOpen
                   ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-8'
               }`}
-              style={{ transitionDelay: '400ms' }}
             >
               Admin Portal
             </Link>
 
             {/* Social Links */}
-            <div className={`flex justify-center gap-6 mt-8 transition-all duration-500 ${
+            <div className={`flex justify-center gap-6 mt-8 transition-all duration-500 transition-delay-500 ${
               isMobileMenuOpen
                 ? 'opacity-100 translate-y-0'
                 : 'opacity-0 translate-y-8'
             }`}
-            style={{ transitionDelay: '500ms' }}
             >
               {[
                 { name: 'Facebook', href: 'https://www.facebook.com/toxictuning' },

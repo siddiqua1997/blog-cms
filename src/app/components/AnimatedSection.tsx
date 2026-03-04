@@ -49,36 +49,15 @@ export default function AnimatedSection({
     };
   }, []);
 
-  const getTransformStyle = () => {
-    if (isVisible) return 'translate3d(0, 0, 0) scale(1)';
-
-    switch (direction) {
-      case 'up':
-        return 'translate3d(0, 40px, 0)';
-      case 'down':
-        return 'translate3d(0, -40px, 0)';
-      case 'left':
-        return 'translate3d(-40px, 0, 0)';
-      case 'right':
-        return 'translate3d(40px, 0, 0)';
-      case 'scale':
-        return 'scale(0.95)';
-      default:
-        return 'translate3d(0, 40px, 0)';
-    }
+  const getDelayClass = (delayMs: number) => {
+    const normalized = Math.min(1500, Math.max(0, Math.round(delayMs / 100) * 100));
+    return `transition-delay-${normalized}`;
   };
 
   return (
     <div
       ref={ref}
-      className={className}
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: getTransformStyle(),
-        transition: `opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)`,
-        transitionDelay: `${delay}ms`,
-        willChange: 'opacity, transform',
-      }}
+      className={`animated-section animated-section--${direction} ${isVisible ? 'animated-section--visible' : ''} ${getDelayClass(delay)} ${className}`}
     >
       {children}
     </div>

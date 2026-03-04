@@ -153,13 +153,7 @@ export default async function PostPage({ params }: PageProps) {
       <section className="pt-32 pb-16 md:pt-40 md:pb-20 bg-pure-black relative overflow-hidden">
         <div className="absolute inset-0">
           <div
-            className="absolute w-[700px] h-[700px] rounded-full opacity-30"
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 10, 10, 0.4) 0%, transparent 70%)',
-              top: '-20%',
-              right: '-10%',
-              filter: 'blur(80px)',
-            }}
+            className="page-hero-glow page-hero-glow--blog-post"
           />
         </div>
 

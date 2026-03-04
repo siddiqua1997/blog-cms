@@ -82,8 +82,7 @@ export default function TestimonialsSlider() {
       {/* Main Testimonial Card */}
       <div className="relative overflow-hidden">
         <div
-          className="flex transition-transform duration-700 ease-out"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          className={`testimonial-track testimonial-track--${currentIndex}`}
         >
           {testimonials.map((testimonial) => (
             <div

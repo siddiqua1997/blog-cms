@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 /**
@@ -14,49 +14,28 @@ import Link from 'next/link';
  * - Premium feel throughout
  */
 export default function ParallaxHero() {
-  const [scrollY, setScrollY] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Trigger animations after mount
     const timer = setTimeout(() => setIsLoaded(true), 100);
 
-    const handleScroll = () => {
-      if (heroRef.current) {
-        const rect = heroRef.current.getBoundingClientRect();
-        if (rect.bottom > 0) {
-          setScrollY(window.scrollY);
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
   return (
     <section
-      ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       {/* Background Image with Parallax */}
       <div
-        className="absolute inset-0 z-0"
-        style={{
-          transform: `translateY(${scrollY * 0.5}px) scale(1.1)`,
-        }}
+        className="absolute inset-0 z-0 hero-bg-scale"
       >
         {/* Hero Background Image - High performance car */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1544636331-e26879cd4d9b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2574&q=80')`,
-            backgroundColor: '#0a0a0a',
-          }}
+          className="absolute inset-0 hero-bg-image"
         />
       </div>
 
@@ -65,21 +44,12 @@ export default function ParallaxHero() {
 
       {/* Additional vignette effect */}
       <div
-        className="absolute inset-0 z-[2] pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0) 100%)',
-        }}
+        className="absolute inset-0 z-[2] pointer-events-none hero-vignette"
       />
 
       {/* Animated accent glow */}
       <div
-        className="absolute z-[2] w-[600px] h-[600px] rounded-full opacity-20 blur-[120px]"
-        style={{
-          background: 'radial-gradient(circle, rgba(255, 10, 10, 0.6) 0%, transparent 70%)',
-          top: '30%',
-          right: '10%',
-          transform: `translateY(${scrollY * 0.2}px)`,
-        }}
+        className="absolute z-[2] w-[600px] h-[600px] rounded-full opacity-20 blur-[120px] hero-accent-glow"
       />
 
       {/* Gradient fade at bottom */}
@@ -93,17 +63,12 @@ export default function ParallaxHero() {
           <div
             className={`overflow-hidden mb-8 transition-all duration-1000 ${
               isLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{ transitionDelay: '300ms' }}
+            } transition-delay-300`}
           >
             <p
-              className={`text-red-primary font-light tracking-[0.4em] uppercase text-sm md:text-sm transform transition-transform duration-1000 ${
+              className={`text-red-primary font-light tracking-[0.4em] uppercase text-sm md:text-sm transform transition-transform duration-1000 font-heading ${
                 isLoaded ? 'translate-y-0' : 'translate-y-full'
-              }`}
-              style={{
-                fontFamily: 'var(--font-heading-alt)',
-                transitionDelay: '300ms'
-              }}
+              } transition-delay-300`}
             >
               Premium Automotive Performance
             </p>
@@ -114,12 +79,7 @@ export default function ParallaxHero() {
             <h1
               className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-bold text-pure-white leading-[0.9] tracking-wide transform transition-all duration-1200 ${
                 isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-              }`}
-              style={{
-                fontFamily: 'var(--font-display)',
-                transitionDelay: '500ms',
-                textShadow: '0 4px 30px rgba(0,0,0,0.5)',
-              }}
+              } transition-delay-500 hero-text-shadow font-heading`}
             >
               Unleash
             </h1>
@@ -127,14 +87,9 @@ export default function ParallaxHero() {
 
           <div className="overflow-hidden mb-8">
             <h1
-              className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-bold leading-[0.9] tracking-wide transform transition-all duration-1200 ${
+              className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-bold leading-[0.9] tracking-wide transform transition-all duration-1200 hero-text-shadow font-heading ${
                 isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-              }`}
-              style={{
-                fontFamily: 'var(--font-display)',
-                transitionDelay: '700ms',
-                textShadow: '0 4px 30px rgba(0,0,0,0.5)',
-              }}
+              } transition-delay-700`}
             >
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-primary via-red-400 to-red-primary">
                 Performance
@@ -146,12 +101,10 @@ export default function ParallaxHero() {
           <div
             className={`max-w-2xl mx-auto mb-14 transition-all duration-1000 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-            style={{ transitionDelay: '900ms' }}
+            } transition-delay-900`}
           >
             <p
-              className="text-lg md:text-xl lg:text-2xl text-grey-200 leading-relaxed font-light"
-              style={{ fontFamily: 'var(--font-serif)' }}
+              className="text-lg md:text-xl lg:text-2xl text-grey-200 leading-relaxed font-light font-body"
             >
               Precision ECU remapping and dyno-proven engineering
               <span className="hidden sm:inline"><br /></span>
@@ -163,14 +116,12 @@ export default function ParallaxHero() {
           <div
             className={`flex flex-col sm:flex-row gap-5 justify-center items-center transition-all duration-1000 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-            style={{ transitionDelay: '1100ms' }}
+            } transition-delay-1100`}
           >
             {/* Primary CTA - Prominent Red Button */}
             <Link
               href="/contact"
-              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-red-primary text-pure-white text-lg font-semibold tracking-wide rounded-full overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-[0_0_60px_rgba(255,10,10,0.5)]"
-              style={{ fontFamily: 'var(--font-heading-alt)' }}
+              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-red-primary text-pure-white text-lg font-semibold tracking-wide rounded-full overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-[0_0_60px_rgba(255,10,10,0.5)] font-heading"
             >
               <span className="relative z-10">Book Your Tune</span>
               <svg
@@ -188,8 +139,7 @@ export default function ParallaxHero() {
             {/* Secondary CTA */}
             <Link
               href="/#projects"
-              className="group inline-flex items-center gap-3 px-10 py-5 border-2 border-pure-white/30 text-pure-white text-lg font-medium tracking-wide rounded-full transition-all duration-500 hover:border-pure-white hover:bg-pure-white/10"
-              style={{ fontFamily: 'var(--font-heading-alt)' }}
+              className="group inline-flex items-center gap-3 px-10 py-5 border-2 border-pure-white/30 text-pure-white text-lg font-medium tracking-wide rounded-full transition-all duration-500 hover:border-pure-white hover:bg-pure-white/10 font-heading"
             >
               <span>View Our Work</span>
               <svg
@@ -207,8 +157,7 @@ export default function ParallaxHero() {
           <div
             className={`mt-20 flex flex-wrap justify-center items-center gap-x-10 gap-y-4 transition-all duration-1000 ${
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-            }`}
-            style={{ transitionDelay: '1300ms' }}
+            } transition-delay-1300`}
           >
             {[
               { icon: '✓', text: 'Dyno Verified' },
@@ -222,8 +171,7 @@ export default function ParallaxHero() {
               >
                 <span className="text-red-primary text-sm">{item.icon}</span>
                 <span
-                  className="text-sm tracking-widest uppercase"
-                  style={{ fontFamily: 'var(--font-heading-alt)', fontWeight: 500 }}
+                  className="text-sm tracking-widest uppercase font-heading font-medium"
                 >
                   {item.text}
                 </span>
@@ -237,16 +185,14 @@ export default function ParallaxHero() {
       <div
         className={`absolute bottom-10 left-1/2 -translate-x-1/2 z-20 transition-all duration-1000 ${
           isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}
-        style={{ transitionDelay: '1500ms' }}
+        } transition-delay-1500`}
       >
         <Link
           href="/#services"
           className="flex flex-col items-center gap-3 text-grey-400 hover:text-pure-white transition-colors duration-300 group"
         >
           <span
-            className="text-[10px] uppercase tracking-[0.3em]"
-            style={{ fontFamily: 'var(--font-heading-alt)' }}
+            className="text-[10px] uppercase tracking-[0.3em] font-heading"
           >
             Discover More
           </span>

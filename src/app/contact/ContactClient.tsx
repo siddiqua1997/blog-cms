@@ -57,14 +57,7 @@ export default function ContactClient() {
         {/* Background Effect */}
         <div className="absolute inset-0">
           <div
-            className="absolute w-[800px] h-[800px] rounded-full opacity-15"
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 10, 10, 0.4) 0%, transparent 70%)',
-              top: '-20%',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              filter: 'blur(100px)',
-            }}
+            className="page-hero-glow page-hero-glow--contact"
           />
         </div>
 
@@ -87,7 +80,7 @@ export default function ContactClient() {
         <div className="section-container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
             {/* Contact Info */}
-            <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+            <div className="opacity-0 animate-fade-in-up delay-100">
               <h2 className="text-2xl md:text-3xl font-bold text-rich-black mb-6">
                 Let&apos;s Talk <span className="text-red-primary">Performance</span>
               </h2>
@@ -205,8 +198,7 @@ export default function ContactClient() {
 
             {/* Contact Form */}
             <form
-              className="bg-white rounded-2xl shadow-xl border border-grey-200 p-8 md:p-10 space-y-6 opacity-0 animate-fade-in-up"
-              style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
+              className="bg-white rounded-2xl shadow-xl border border-grey-200 p-8 md:p-10 space-y-6 opacity-0 animate-fade-in-up delay-200"
               onSubmit={handleSubmit}
             >
               <div>

@@ -55,13 +55,7 @@ export default function AboutPage() {
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-pure-black relative overflow-hidden">
         <div className="absolute inset-0">
           <div
-            className="absolute w-[700px] h-[700px] rounded-full opacity-20"
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 10, 10, 0.35) 0%, transparent 70%)',
-              top: '-20%',
-              left: '-10%',
-              filter: 'blur(90px)',
-            }}
+            className="page-hero-glow page-hero-glow--left"
           />
         </div>
         <div className="section-container relative z-10 text-center">

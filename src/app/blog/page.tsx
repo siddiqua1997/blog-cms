@@ -86,13 +86,7 @@ export default async function BlogPage() {
         {/* Background Effect */}
         <div className="absolute inset-0">
           <div
-            className="absolute w-[600px] h-[600px] rounded-full opacity-10"
-            style={{
-              background: 'radial-gradient(circle, rgba(255, 10, 10, 0.4) 0%, transparent 70%)',
-              top: '0%',
-              right: '-10%',
-              filter: 'blur(80px)',
-            }}
+            className="page-hero-glow page-hero-glow--blog"
           />
         </div>
 
@@ -134,12 +128,12 @@ export default async function BlogPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 {posts.map((post, index) => {
                   const postImage = getPostImage(post);
+                  const delayClass = `delay-${Math.min(index * 100, 800)}`;
 
                   return (
                     <article
                       key={post.id}
-                      className="card-premium-light group opacity-0 animate-fade-in-up"
-                      style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
+                      className={`card-premium-light group opacity-0 animate-fade-in-up ${delayClass}`}
                     >
                       {/* Post thumbnail */}
                       <Link href={`/blog/${post.slug}`} className="block">

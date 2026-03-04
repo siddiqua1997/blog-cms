@@ -86,13 +86,9 @@ export default function StatsCounter({ variant = 'dark' }: StatsCounterProps) {
       {stats.map((stat, index) => (
         <div
           key={stat.label}
-          className={variant === 'light' ? 'stat-card-light' : 'stat-card'}
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: `opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)`,
-            transitionDelay: `${index * 100}ms`,
-          }}
+          className={`${variant === 'light' ? 'stat-card-light' : 'stat-card'} ${
+            isVisible ? `animate-fade-in-up delay-${Math.min(index * 100, 800)}` : 'opacity-0'
+          }`}
         >
           <div className="stat-value">
             {formatNumber(counts[index])}{stat.suffix}
