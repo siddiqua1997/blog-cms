@@ -66,7 +66,7 @@ export default function ParallaxHero() {
             } transition-delay-300`}
           >
             <p
-              className={`text-red-primary font-light tracking-[0.4em] uppercase text-sm md:text-sm transform transition-transform duration-1000 font-heading ${
+              className={`text-red-primary font-light tracking-[0.4em] uppercase text-sm md:text-sm transform transition-transform duration-1000 ${
                 isLoaded ? 'translate-y-0' : 'translate-y-full'
               } transition-delay-300`}
             >
@@ -79,7 +79,7 @@ export default function ParallaxHero() {
             <h1
               className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-bold text-pure-white leading-[0.9] tracking-wide transform transition-all duration-1200 ${
                 isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
-              } transition-delay-500 hero-text-shadow font-heading`}
+              } transition-delay-500 hero-text-shadow`}
             >
               Unleash
             </h1>
@@ -87,7 +87,7 @@ export default function ParallaxHero() {
 
           <div className="overflow-hidden mb-8">
             <h1
-              className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-bold leading-[0.9] tracking-wide transform transition-all duration-1200 hero-text-shadow font-heading ${
+              className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-bold leading-[0.9] tracking-wide transform transition-all duration-1200 hero-text-shadow ${
                 isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
               } transition-delay-700`}
             >
@@ -104,7 +104,7 @@ export default function ParallaxHero() {
             } transition-delay-900`}
           >
             <p
-              className="text-lg md:text-xl lg:text-2xl text-grey-200 leading-relaxed font-light font-body"
+              className="text-lg md:text-xl lg:text-2xl text-grey-200 leading-relaxed font-light"
             >
               Precision ECU remapping and dyno-proven engineering
               <span className="hidden sm:inline"><br /></span>
@@ -121,7 +121,7 @@ export default function ParallaxHero() {
             {/* Primary CTA - Prominent Red Button */}
             <Link
               href="/contact"
-              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-red-primary text-pure-white text-lg font-semibold tracking-wide rounded-full overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-[0_0_60px_rgba(255,10,10,0.5)] font-heading"
+              className="group relative inline-flex items-center gap-3 px-10 py-5 bg-red-primary text-pure-white text-lg font-semibold tracking-wide rounded-full overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-[0_0_60px_rgba(255,10,10,0.5)]"
             >
               <span className="relative z-10">Book Your Tune</span>
               <svg
@@ -139,7 +139,7 @@ export default function ParallaxHero() {
             {/* Secondary CTA */}
             <Link
               href="/#projects"
-              className="group inline-flex items-center gap-3 px-10 py-5 border-2 border-pure-white/30 text-pure-white text-lg font-medium tracking-wide rounded-full transition-all duration-500 hover:border-pure-white hover:bg-pure-white/10 font-heading"
+              className="group inline-flex items-center gap-3 px-10 py-5 border-2 border-pure-white/30 text-pure-white text-lg font-medium tracking-wide rounded-full transition-all duration-500 hover:border-pure-white hover:bg-pure-white/10"
             >
               <span>View Our Work</span>
               <svg
@@ -171,7 +171,7 @@ export default function ParallaxHero() {
               >
                 <span className="text-red-primary text-sm">{item.icon}</span>
                 <span
-                  className="text-sm tracking-widest uppercase font-heading font-medium"
+                  className="text-sm tracking-widest uppercase font-medium"
                 >
                   {item.text}
                 </span>
@@ -192,7 +192,7 @@ export default function ParallaxHero() {
           className="flex flex-col items-center gap-3 text-grey-400 hover:text-pure-white transition-colors duration-300 group"
         >
           <span
-            className="text-[10px] uppercase tracking-[0.3em] font-heading"
+            className="text-[10px] uppercase tracking-[0.3em]"
           >
             Discover More
           </span>
