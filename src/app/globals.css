@@ -197,6 +197,10 @@ p {
   font-family: var(--font-body);
 }
 
+.font-oswald-only {
+  font-family: 'Oswald', sans-serif;
+}
+
 /* Selection Style */
 ::selection {
   background: var(--color-red-primary);

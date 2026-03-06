@@ -184,7 +184,7 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-3xl font-semibold text-pure-white py-4 border-b border-grey-800/50 transition-all duration-500 hover:text-[#ED3237] hover:pl-4 uppercase tracking-wide font-heading transition-delay-${index * 75} ${
+                className={`text-3xl font-semibold text-pure-white py-4 border-b border-grey-800/50 transition-all duration-500 hover:text-[#ED3237] hover:pl-4 uppercase tracking-wide font-oswald-only transition-delay-${index * 75} ${
                   isMobileMenuOpen
                     ? 'opacity-100 translate-x-0'
                     : 'opacity-0 -translate-x-8'
