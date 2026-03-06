@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import { generateBlogListMetadata } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
@@ -140,12 +139,11 @@ export default async function BlogPage() {
                         <div className="aspect-video bg-gradient-to-br from-grey-100 to-grey-200 relative overflow-hidden">
                           {postImage ? (
                             isAllowedImageUrl(postImage) ? (
-                              <Image
+                              <img
                                 src={postImage}
                                 alt={post.title}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                loading="lazy"
                               />
                             ) : (
                               <img

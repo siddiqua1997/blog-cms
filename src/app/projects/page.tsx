@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { generateBreadcrumbJsonLd } from '@/lib/seo';
@@ -90,12 +89,11 @@ export default function ProjectsPage() {
               <article key={project.title} className="card-premium-light overflow-hidden">
                 <div className="aspect-video bg-gradient-to-br from-grey-100 to-grey-200 relative overflow-hidden">
                   {isAllowedImageUrl(project.image) ? (
-                    <Image
+                    <img
                       src={project.image}
                       alt={project.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="absolute inset-0 h-full w-full object-cover"
+                      loading="lazy"
                     />
                   ) : (
                     <img

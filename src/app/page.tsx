@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import { extractFirstImage } from '@/lib/seo';
 import { isAllowedImageUrl } from '@/lib/images';
@@ -279,12 +278,11 @@ export default async function HomePage() {
                   {/* Project Image */}
                   <div className="aspect-video bg-gradient-to-br from-grey-100 to-grey-200 relative overflow-hidden">
                     {isAllowedImageUrl(project.image) ? (
-                      <Image
+                      <img
                         src={project.image}
                         alt={project.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                     ) : (
                       <img
@@ -496,12 +494,11 @@ export default async function HomePage() {
                         }
 
                         return isAllowedImageUrl(imageUrl) ? (
-                          <Image
+                          <img
                             src={imageUrl}
                             alt={post.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
                           />
                         ) : (
                           <img

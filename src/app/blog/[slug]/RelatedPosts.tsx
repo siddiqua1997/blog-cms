@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import prisma from '@/lib/prisma';
 import { isAllowedImageUrl } from '@/lib/images';
 import { appCache } from '@/lib/lru';
@@ -85,12 +84,11 @@ export default async function RelatedPosts({ currentSlug }: RelatedPostsProps) {
                     <div className="aspect-video bg-grey-100 relative overflow-hidden">
                       {postImage ? (
                         isAllowedImageUrl(postImage) ? (
-                          <Image
+                          <img
                             src={postImage}
                             alt={post.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            sizes="(max-width: 768px) 100vw, 33vw"
+                            className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            loading="lazy"
                           />
                         ) : (
                           <img

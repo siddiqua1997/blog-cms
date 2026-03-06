@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { isAllowedImageUrl } from '@/lib/images';
 
 type PostCard = {
@@ -97,12 +96,11 @@ export default function BlogSearchResults() {
                 <div className="aspect-video bg-grey-100 relative overflow-hidden">
                   {post.thumbnail ? (
                     isAllowedImageUrl(post.thumbnail) ? (
-                      <Image
+                      <img
                         src={post.thumbnail}
                         alt={post.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                     ) : (
                       <img
